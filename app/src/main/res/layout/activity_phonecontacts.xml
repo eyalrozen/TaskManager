@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#5b74a8"
+        android:id="@+id/frag">
+
+        <TextView
+            android:id="@+id/srchHint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Search.."
+            android:textSize="16dp"
+            android:textColor="#000"
+            android:layout_gravity="center" />
+
+        <SearchView
+            android:background="#5b74a8"
+            android:padding="8dp"
+            android:id="@+id/searchView"
+            android:drawableLeft="@android:drawable/ic_menu_search"
+            android:layout_width="wrap_content"
+            android:singleLine="true"
+            android:layout_gravity="right"
+            android:layout_height="wrap_content"></SearchView>
+    </FrameLayout>
+
+    <ListView
+        android:layout_below="@+id/frag"
+        android:layout_width="match_parent"
+        android:layout_height="396dp"
+        android:id="@+id/contacts_list"></ListView>
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="38dp"
+        android:text="Done"
+        android:id="@+id/doneBtn"
+        android:layout_alignBottom="@+id/contacts_list"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="50dp" />
+
+</LinearLayout>
