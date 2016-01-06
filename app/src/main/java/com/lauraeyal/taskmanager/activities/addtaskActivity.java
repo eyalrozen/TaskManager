@@ -1,31 +1,41 @@
 package com.lauraeyal.taskmanager.activities;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Debug;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.lauraeyal.taskmanager.DatePickerFragment;
 import com.lauraeyal.taskmanager.R;
 import com.lauraeyal.taskmanager.TimePickerFragment;
 
+import java.io.Console;
 
-public class addtaskActivity extends AppCompatActivity {
+
+public class addtaskActivity extends AppCompatActivity implements DatePickerFragment.PickDate, TimePickerFragment.PickTime {
     private Button createBtn;
     private EditText dscText;
     private RadioButton noramRadio,urgentRadio;
     private EditText descText;
+    private String _date,_time;
     RadioGroup rg;
     private Spinner locationSpinner,categorySpinner,usersSpinner;
     @Override
@@ -55,12 +65,14 @@ public class addtaskActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             if(!TextUtils.isEmpty(descText.getText())) {
+                String dueDate = _date + "T"+ _time;
                 String Desc = descText.getText().toString();
                 Intent resultIntent = new Intent();
                 resultIntent.putExtra("Description", Desc);
                 resultIntent.putExtra("Category", String.valueOf(categorySpinner.getSelectedItem()));
                 resultIntent.putExtra("Location", String.valueOf(locationSpinner.getSelectedItem()));
                 resultIntent.putExtra("User", String.valueOf(usersSpinner.getSelectedItem()));
+                resultIntent.putExtra("dueDate",dueDate);
                 TextView checked = (TextView) findViewById(rg.getCheckedRadioButtonId());
                 resultIntent.putExtra("Priority", checked.getText().toString());
                 setResult(Activity.RESULT_OK, resultIntent);
@@ -77,6 +89,22 @@ public class addtaskActivity extends AppCompatActivity {
     public void showTimePickerDialog(View v) {
         DialogFragment newFragment = new TimePickerFragment();
         newFragment.show(getSupportFragmentManager(), "timePicker");
+    }
+
+    public void showDatePickerDialog(View v) {
+        DialogFragment newFragment = new DatePickerFragment();
+        newFragment.show(getSupportFragmentManager(), "datePicker");
+    }
+
+
+    @Override
+    public void returnDate(String value) {
+        _date=value;
+    }
+
+    @Override
+    public void returnTime(String value) {
+        _time = value;
     }
 
     private class CustomOnItemSelectedListener implements android.widget.AdapterView.OnItemSelectedListener {

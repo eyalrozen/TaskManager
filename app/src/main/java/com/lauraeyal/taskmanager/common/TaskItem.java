@@ -12,14 +12,14 @@ public class TaskItem {
     private String _description;
     private String _category;
     private String _location;
-    private Date _dueTime;
+    private String _dueTime;
     private String _teamMemebr;
     private String _taskPriority;
     private int _id;
     private int _taskStatus;
     private int _isApproved;
 
-    public TaskItem(String description,String category , String location, Date dueTime, String teamMember,String taskPriority,int status,int isApproved) {
+    public TaskItem(String description,String category , String location, String dueTime, String teamMember,String taskPriority,int status,int isApproved) {
         super();
         _description = description;
         _category = category;
@@ -49,22 +49,12 @@ public class TaskItem {
         this._location = _location;
     }
 
-    public String GetDueTime() {
-            SimpleDateFormat dateFormat = new SimpleDateFormat(
-                    "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-            return dateFormat.format(_dueTime);
 
-    }
-
-    public void SetDueTime(Date _dueTime) {
+    public void SetDueTime(String _dueTime) {
         this._dueTime = _dueTime;
     }
 
-    public void setDueTime(String Time) throws ParseException {
-        SimpleDateFormat  format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-            Date date = format.parse(Time);
-        _dueTime = date;
-    }
+
 
     public String get_teamMemebr() {
         return _teamMemebr;
@@ -101,4 +91,6 @@ public class TaskItem {
     public void SetDescription(String description) { _description = description;}
 
     public String GetDescription() {return _description;}
+
+    public String GetDueTime () {return _dueTime;}
 }

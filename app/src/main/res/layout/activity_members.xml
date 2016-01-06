@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools" android:id="@+id/drawer_layout"
     android:layout_width="match_parent" android:layout_height="match_parent"
     android:fitsSystemWindows="true" tools:openDrawer="start"
-    tools:context=".UsersActivity">
+    tools:context=".MembersActivity">
 
     <include layout="@layout/app_bar_main" android:layout_width="match_parent"
         android:layout_height="match_parent" />
@@ -35,6 +35,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/my_recycle_view"
             android:layout_above="@+id/addBtn"
+            android:layout_below="@id/header"
             android:layout_alignRight="@+id/donebutton"
             android:layout_alignEnd="@+id/donebutton"
             android:layout_marginRight="50dp"

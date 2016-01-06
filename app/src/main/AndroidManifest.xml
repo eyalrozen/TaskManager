@@ -17,7 +17,7 @@
             android:name="com.parse.CLIENT_KEY"
             android:value="fCD5m26rXryOjbRvwTajeqVU8ErkbbFXywxeog3V" />
         <activity
-            android:name=".activities.UsersActivity"
+            android:name=".activities.TasksActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" >
             <intent-filter>
@@ -29,7 +29,7 @@
         <activity android:name=".activities.LoginActivity" android:label="Login"/>
         <activity android:name=".activities.WorkerActivity" android:label="My Tasks"/>
         <activity android:name=".activities.PhoneContactsActivity" android:label="Add Member"/>
-        <activity android:name=".activities.TasksActivity" android:label="Team Tasks"/>
+        <activity android:name=".activities.UsersActivity" android:label="Team Tasks"/>
         <activity android:name=".activities.addtaskActivity" android:label="Add Task" />
         <activity android:name=".activities.AddTeamActivity" android:label="Add Team" />
 

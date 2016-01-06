@@ -6,6 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.lauraeyal.taskmanager.MyItemClickListener;
+import com.lauraeyal.taskmanager.MyItemLongClickListener;
 import com.lauraeyal.taskmanager.R;
 import com.lauraeyal.taskmanager.common.*;
 
@@ -17,6 +19,8 @@ import java.util.List;
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder>
 {
     private List<TaskItem> taskItems;
+    private MyItemClickListener mItemClickListener;
+    private MyItemLongClickListener mItemLongClickListener;
     public  TaskAdapter(List<TaskItem> taskItems){
         this.taskItems = taskItems;
     }
@@ -26,8 +30,16 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder>
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.list_view_card, parent, false);
 
-        ViewHolder vh = new ViewHolder(v);
+        ViewHolder vh = new ViewHolder(v,mItemClickListener,mItemLongClickListener);
         return vh;
+    }
+
+    public void setOnItemClickListener(MyItemClickListener listener){
+        this.mItemClickListener = listener;
+    }
+
+    public void setOnItemLongClickListener(MyItemLongClickListener listener){
+        this.mItemLongClickListener = listener;
     }
 
     @Override
@@ -58,13 +70,34 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder>
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,View.OnLongClickListener {
         //Each item is a view in the card.
         private TextView mTvDescription;
+        private MyItemClickListener mListener;
+        private MyItemLongClickListener mLongListener;
 
-        public ViewHolder(View parentView) {
+        public ViewHolder(View parentView, MyItemClickListener mItemClickListener, MyItemLongClickListener mItemLongClickListener) {
             super(parentView);
             mTvDescription = (TextView) parentView.findViewById(R.id.textView_description);
+            this.mListener = mItemClickListener;
+            this.mLongListener = mItemLongClickListener;
+            parentView.setOnClickListener(this);
+            parentView.setOnLongClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            if(mListener != null){
+                mListener.onItemClick(v,getPosition());
+            }
+        }
+
+        @Override
+        public boolean onLongClick(View v) {
+            if(mLongListener != null){
+                mLongListener.onItemLongClick(v, getPosition());
+            }
+            return true;
         }
     }
 

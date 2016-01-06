@@ -5,14 +5,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.lauraeyal.taskmanager.R;
 import com.lauraeyal.taskmanager.common.User;
 
 import java.util.List;
-
-import static android.support.v7.widget.RecyclerView.*;
 
 /**
  * Created by Eyal on 11/7/2015.
@@ -28,10 +25,12 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder>
         // create a new view
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.list_view_card, parent, false);
-        
+
         ViewHolder vh = new ViewHolder(v);
         return vh;
     }
+
+
 
 
 
@@ -46,6 +45,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder>
 
         User usr = users.get(position);
         holder.mTvDescription.setText(usr.getUserName());
+
 
     }
 

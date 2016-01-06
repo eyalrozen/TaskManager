@@ -1,6 +1,7 @@
 package com.lauraeyal.taskmanager.activities;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -8,9 +9,11 @@ import android.provider.ContactsContract;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -32,12 +35,12 @@ import java.util.List;
 
 
 public class UsersActivity extends AppCompatActivity implements
-        OnDataSourceChangeListener , NavigationView.OnNavigationItemSelectedListener {
+        OnDataSourceChangeListener , NavigationView.OnNavigationItemSelectedListener,MyItemClickListener,MyItemLongClickListener {
     private ImageButton FAB;
     private Button addBtn;
     private Button doneBtn;
     private RecyclerView mRecyclerView;
-    private UsersAdapter uAdapter;
+    private UserAdapter uAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     public UsersController controller;
 
@@ -74,8 +77,10 @@ public class UsersActivity extends AppCompatActivity implements
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
-        uAdapter = new UsersAdapter(controller.GetUsersList());
+        uAdapter = new UserAdapter(controller.GetUsersList());
         mRecyclerView.setAdapter(uAdapter);
+        uAdapter.setOnItemClickListener(this);
+        uAdapter.setOnItemLongClickListener(this);
         doneBtn = (Button) findViewById(R.id.donebutton);
         doneBtn.setOnClickListener(OnDoneBtnClickListener);
         addBtn =(Button) findViewById(R.id.addBtn);
@@ -88,6 +93,45 @@ public class UsersActivity extends AppCompatActivity implements
 
             }
         });
+    }
+
+    public void onItemClick(View view, int postion) {
+        User usr = controller.GetUsersList().get(postion);
+
+        if(usr != null){
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+            alertDialogBuilder.setTitle("Warning! ");
+            alertDialogBuilder
+                    .setMessage("Are you sure you want to delete \n" + usr.getUserName() + "?")
+                    .setCancelable(false)
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // if this button is clicked, close
+                            // current activity
+                            finish();
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // if this button is clicked, just close
+                            // the dialog box and do nothing
+                            dialog.cancel();
+                        }
+                    });
+            AlertDialog alertDialog = alertDialogBuilder.create();
+            alertDialog.show();
+
+            //Snackbar.make(view,"Short Click "+ usr.getUserName(),Snackbar.LENGTH_LONG).setAction("action",null).show();
+        }
+    }
+
+
+
+    public void onItemLongClick(View view, int postion) {
+        User usr = controller.GetUsersList().get(postion);
+        if(usr != null) {
+            Snackbar.make(view, "Long click " + usr.getUserName(), Snackbar.LENGTH_LONG).setAction("action", null).show();
+        }
     }
 
     @Override
@@ -197,7 +241,6 @@ public class UsersActivity extends AppCompatActivity implements
         }
 
     }
-
 
     @Override
     public void DataSourceChanged() {

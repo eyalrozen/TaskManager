@@ -227,7 +227,7 @@ public class DAO implements IDataAcces
             values.put(TaskDBContract.TaskEntry.COLUMN_TASK_CATEGORY, task.getCategory());
             values.put(TaskDBContract.TaskEntry.COLUMN_TASK_PRIORITY, task.GetPriority());
             values.put(TaskDBContract.TaskEntry.COLUMN_TASK_LOCATION, task.GetLocation());
-            values.put(TaskDBContract.TaskEntry.COLUMN_TASK_DUETIME, "123");
+            values.put(TaskDBContract.TaskEntry.COLUMN_TASK_DUETIME, task.GetDueTime());
             values.put(TaskDBContract.TaskEntry.COLUMN_TASK_ASSIGNEDWORKER, task.get_teamMemebr());
             values.put(TaskDBContract.TaskEntry.COLUMN_TASK_STATUS, task.GetTaskStatus());
             values.put(TaskDBContract.TaskEntry.COLUMN_TASK_APPROVLE, task.GetTaskApprovle());
@@ -269,7 +269,7 @@ public class DAO implements IDataAcces
             Parsetasks.put("Category", task.getCategory());
             Parsetasks.put("Priority", task.GetPriority());
             Parsetasks.put("Location", task.GetLocation());
-            Parsetasks.put("DueTime", "20:20");
+            Parsetasks.put("DueTime", task.GetDueTime());
             Parsetasks.put("AssignedWorker", "test1@gmail.com");
             Parsetasks.put("Status", task.GetTaskStatus());
             Parsetasks.put("Approved",task.GetTaskApprovle());
@@ -290,12 +290,8 @@ public class DAO implements IDataAcces
                 .getColumnIndex(TaskDBContract.TaskEntry.COLUMN_TASK_DESCRIPTION)));
         f.setCategory(cursor.getString(cursor
                 .getColumnIndex(TaskDBContract.TaskEntry.COLUMN_TASK_CATEGORY)));
-        try {
-            f.setDueTime(cursor.getString(cursor
+        f.SetDueTime(cursor.getString(cursor
                     .getColumnIndex(TaskDBContract.TaskEntry.COLUMN_TASK_DUETIME)));
-        } catch (java.text.ParseException e) {
-            e.printStackTrace();
-        }
         f.SetLocation(cursor.getString(cursor
                 .getColumnIndex(TaskDBContract.TaskEntry.COLUMN_TASK_LOCATION)));
         f.SetPriority(cursor.getString(cursor
