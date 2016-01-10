@@ -27,7 +27,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".activities.LoginActivity" android:label="Login"/>
-        <activity android:name=".activities.WorkerActivity" android:label="My Tasks"/>
         <activity android:name=".activities.PhoneContactsActivity" android:label="Add Member"/>
         <activity android:name=".activities.UsersActivity" android:label="Team Tasks"/>
         <activity android:name=".activities.addtaskActivity" android:label="Add Task" />

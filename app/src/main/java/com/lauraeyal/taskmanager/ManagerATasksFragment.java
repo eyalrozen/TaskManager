@@ -47,7 +47,7 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
-        mAdapter = new TaskAdapter(controller.GetDoneTaskList());
+        mAdapter = new TaskAdapter(controller.GetAllTaskList());
         mRecyclerView.setAdapter(mAdapter);
         // Inflate the layout for this fragment
         return rootView;
@@ -56,7 +56,7 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
     @Override
     public void DataSourceChanged() {
         if (mAdapter != null) {
-            mAdapter.UpdateDataSource(controller.GetDoneTaskList());
+            mAdapter.UpdateDataSource(controller.GetAllTaskList());
             mAdapter.notifyDataSetChanged();
         }
 

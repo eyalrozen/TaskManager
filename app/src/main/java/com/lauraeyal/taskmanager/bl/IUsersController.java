@@ -8,5 +8,6 @@ import java.util.List;
  * Created by Eyal on 1/2/2016.
  */
 public interface IUsersController {
-    List<User> GetUserList();
+    List<User> GetUsersList();
+    void SyncTeamName();
 }

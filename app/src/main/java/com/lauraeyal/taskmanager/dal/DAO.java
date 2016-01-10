@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.lauraeyal.taskmanager.common.*;
@@ -23,8 +24,10 @@ import java.util.List;
 public class DAO implements IDataAcces
 {
 
-    private List<TaskItem> TaskList = new ArrayList<TaskItem>();
+    private List<TaskItem> WaitingTaskList = new ArrayList<TaskItem>();
+    private List<TaskItem> AllTaskList = new ArrayList<TaskItem>();
     private static DAO instance;
+    private static String tName;
     private Context context;
     private MembersDBHelper MembersdbHelper;
     private TaskDBHelper TaskdbHelper;
@@ -104,8 +107,47 @@ public class DAO implements IDataAcces
         }
     }
 
-    public List<TaskItem> GetWaitingTaskList() {
-        SQLiteDatabase database = null;
+
+    public List<TaskItem> GetWaitingTaskList()
+    {
+        return WaitingTaskList;
+    }
+
+    public List<TaskItem> GetAllTaskList()
+    {
+        return AllTaskList;
+    }
+
+    public void SyncAllTaskList(final ParseUser user){
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Tasks");
+        if(user.getInt("isAdmin") == 0)
+            query.whereEqualTo("user", user);
+        query.whereEqualTo("isApproved", 1);
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                if(e==null) {
+                    for (ParseObject task : objects) {
+                        TaskItem f = new TaskItem();
+                        f.setCategory(task.getString("Category"));
+                        f.SetLocation(task.getString("Location"));
+                        f.SetDescription(task.getString("Description"));
+                        f.SetDueTime(task.getString("DueTime"));
+                        f.SetTeamMemebr(user.getEmail());
+                        f.SetPriority(task.getString("Priority"));
+                        f.SetTaskApprovle(task.getInt("isApproved"));
+                        f.SetTaskStatus(task.getString("Status"));
+                        AllTaskList.add(f);
+                    }
+                }
+            }
+
+        });
+
+    }
+
+    public void SyncWaitingTaskList(final ParseUser user) {
+       /* SQLiteDatabase database = null;
         try {
             database = TaskdbHelper.getReadableDatabase();
             List<TaskItem> tasks = new ArrayList<TaskItem>();
@@ -128,7 +170,32 @@ public class DAO implements IDataAcces
             }
             else
                 return null;
-        }
+        }*/
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Tasks");
+        if(user.getInt("isAdmin") == 0)
+            query.whereEqualTo("user", user);
+        query.whereEqualTo("isApproved", 0);
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                if(e==null) {
+                    for (ParseObject task : objects) {
+                        TaskItem f = new TaskItem();
+                        f.setCategory(task.getString("Category"));
+                        f.SetLocation(task.getString("Location"));
+                        f.SetDescription(task.getString("Description"));
+                        f.SetDueTime(task.getString("DueTime"));
+                        f.SetTeamMemebr(user.getEmail());
+                        f.SetPriority(task.getString("Priority"));
+                        f.SetTaskApprovle(task.getInt("isApproved"));
+                        f.SetTaskStatus(task.getString("Status"));
+                        WaitingTaskList.add(f);
+                    }
+                }
+            }
+
+        });
+
     }
 
     public List<TaskItem> GetDoneTaskList() {
@@ -142,7 +209,7 @@ public class DAO implements IDataAcces
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
                 TaskItem f = cursorToTask(cursor);
-                if(f.GetTaskStatus() == 2)      // 2 = status done
+                if(f.GetTaskStatus() == "")      // 2 = status done
                     tasks.add(f);
                 cursor.moveToNext();
             }
@@ -158,61 +225,6 @@ public class DAO implements IDataAcces
         }
     }
 
-    public List<TaskItem> GetWorkerWaitingTaskList(String username)
-    {
-        SQLiteDatabase database = null;
-        try {
-            database = TaskdbHelper.getReadableDatabase();
-            List<TaskItem> tasks = new ArrayList<TaskItem>();
-            Cursor cursor = database.query(TaskDBContract.TaskEntry.TABLE_NAME, tasksColumns,
-                    null, null, null, null, null);
-
-            cursor.moveToFirst();
-            while (!cursor.isAfterLast()) {
-                TaskItem f = cursorToTask(cursor);
-                if(f.GetTaskStatus() == 2)      // 2 = status done
-                    tasks.add(f);
-                cursor.moveToNext();
-            }
-            // make sure to close the cursor
-            cursor.close();
-            return tasks;
-        } finally {
-            if (database != null) {
-                database.close();
-            }
-            else
-                return null;
-        }
-    }
-
-    public List<TaskItem> GetWorkerTaskList(String username)
-    {
-        SQLiteDatabase database = null;
-        try {
-            database = TaskdbHelper.getReadableDatabase();
-            List<TaskItem> tasks = new ArrayList<TaskItem>();
-            Cursor cursor = database.query(TaskDBContract.TaskEntry.TABLE_NAME, tasksColumns,
-                    null, null, null, null, null);
-
-            cursor.moveToFirst();
-            while (!cursor.isAfterLast()) {
-                TaskItem f = cursorToTask(cursor);
-                if(f.GetTaskStatus() == 2)      // 2 = status done
-                    tasks.add(f);
-                cursor.moveToNext();
-            }
-            // make sure to close the cursor
-            cursor.close();
-            return tasks;
-        } finally {
-            if (database != null) {
-                database.close();
-            }
-            else
-                return null;
-        }
-    }
 
     public TaskItem AddTask(final TaskItem task)
     {
@@ -243,6 +255,38 @@ public class DAO implements IDataAcces
             //create the friend object from the cursor.
             TaskItem newTask = cursorToTask(cursor);
             cursor.close();
+            ParseQuery<ParseUser> query = ParseUser.getQuery();
+            query.whereEqualTo("username", task.get_teamMemebr());
+            query.findInBackground(new FindCallback<ParseUser>() {
+                public void done(List<ParseUser> objects, ParseException e) {
+                    if (e == null) {
+                        for (ParseUser user: objects) {
+                            ParseObject Parsetasks = new ParseObject("Tasks");
+                            Parsetasks.put("Description", task.GetDescription());
+                            Parsetasks.put("Category", task.getCategory());
+                            Parsetasks.put("Priority", task.GetPriority());
+                            Parsetasks.put("Location", task.GetLocation());
+                            Parsetasks.put("DueTime", task.GetDueTime());
+                            Parsetasks.put("user", user);
+                            Parsetasks.put("isApprovle", task.GetTaskApprovle());
+                            Parsetasks.put("Status", task.GetTaskStatus());
+                            Parsetasks.saveEventually();
+                        }
+                    } else {
+                        // Something went wrong.
+                    }
+                }
+            });
+           /* ParseObject Parsetasks = new ParseObject("Tasks");
+            Parsetasks.put("Description", task.GetDescription());
+            Parsetasks.put("Category", task.getCategory());
+            Parsetasks.put("Priority", task.GetPriority());
+            Parsetasks.put("Location", task.GetLocation());
+            Parsetasks.put("DueTime", task.GetDueTime());
+            Parsetasks.put("AssignedWorker", task.get_teamMemebr());
+            Parsetasks.put("Pending", task.GetTaskApprovle());
+            Parsetasks.saveEventually();
+
             /*ParseQuery<ParseUser> query = ParseUser.getQuery();
             query.whereEqualTo("username", "test1@gmail.com");
             query.findInBackground(new FindCallback<ParseUser>() {
@@ -264,16 +308,7 @@ public class DAO implements IDataAcces
                     }
                 }
             });*/
-            ParseObject Parsetasks = new ParseObject("Tasks");
-            Parsetasks.put("Description", task.GetDescription());
-            Parsetasks.put("Category", task.getCategory());
-            Parsetasks.put("Priority", task.GetPriority());
-            Parsetasks.put("Location", task.GetLocation());
-            Parsetasks.put("DueTime", task.GetDueTime());
-            Parsetasks.put("AssignedWorker", "test1@gmail.com");
-            Parsetasks.put("Status", task.GetTaskStatus());
-            Parsetasks.put("Approved",task.GetTaskApprovle());
-            Parsetasks.saveInBackground();
+
             return newTask;
         }finally {
             if (database != null)
@@ -298,7 +333,7 @@ public class DAO implements IDataAcces
                 .getColumnIndex(TaskDBContract.TaskEntry.COLUMN_TASK_PRIORITY)));
         f.SetTeamMemebr(cursor.getString(cursor
                 .getColumnIndex(TaskDBContract.TaskEntry.COLUMN_TASK_ASSIGNEDWORKER)));
-        f.SetTaskStatus(cursor.getInt(cursor
+        f.SetTaskStatus(cursor.getString(cursor
                 .getColumnIndex(TaskDBContract.TaskEntry.COLUMN_TASK_STATUS)));
         f.SetTaskApprovle(cursor.getInt(cursor
                 .getColumnIndex(TaskDBContract.TaskEntry.COLUMN_TASK_APPROVLE)));
@@ -384,9 +419,28 @@ public class DAO implements IDataAcces
 
     }
 
+    public void SyncTeamName()
+    {
+        ParseQuery<ParseUser> query = ParseUser.getQuery();
+        query.whereEqualTo("isAdmin", 1);
+        query.findInBackground(new FindCallback<ParseUser>() {
+            public void done(List<ParseUser> objects, ParseException e) {
+                if (e == null) {
+                    // The query was successful.
+                    for(ParseUser usr : objects)
+                    {
+                        tName = usr.getString("Team");
+                    }
+                }
+                else {
+                    // Something went wrong.
+                }
+            }
+        });
+    }
     public String GetTeamName()
     {
-        return MembersDBContract.MembersEntry.TABLE_NAME;
+        return tName;
     }
 
 

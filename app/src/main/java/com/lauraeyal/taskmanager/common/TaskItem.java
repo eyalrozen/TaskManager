@@ -16,10 +16,10 @@ public class TaskItem {
     private String _teamMemebr;
     private String _taskPriority;
     private int _id;
-    private int _taskStatus;
+    private String _taskStatus;
     private int _isApproved;
 
-    public TaskItem(String description,String category , String location, String dueTime, String teamMember,String taskPriority,int status,int isApproved) {
+    public TaskItem(String description,String category , String location, String dueTime, String teamMember,String taskPriority,String status,int isApproved) {
         super();
         _description = description;
         _category = category;
@@ -72,9 +72,9 @@ public class TaskItem {
         this._taskPriority = _taskPriority;
     }
 
-    public int GetTaskStatus() {return _taskStatus;}
+    public String GetTaskStatus() {return _taskStatus;}
 
-    public void SetTaskStatus(int status) {_taskStatus = status;}
+    public void SetTaskStatus(String status) {_taskStatus = status;}
 
     public void setId(int id) {
         this._id = id;

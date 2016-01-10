@@ -1,6 +1,7 @@
 package com.lauraeyal.taskmanager.dal;
 
 import com.lauraeyal.taskmanager.common.*;
+import com.parse.ParseUser;
 
 import java.util.List;
 
@@ -10,11 +11,12 @@ import java.util.List;
 public interface IDataAcces {
     User AddUser(User usr);
     String GetTeamName();
-    List<TaskItem> GetWorkerWaitingTaskList(String username);
-    List<TaskItem >GetWorkerTaskList(String username);
     List<TaskItem> GetTaskList();
-    List<TaskItem> GetDoneTaskList();
+    List<TaskItem> GetAllTaskList();
     List<TaskItem> GetWaitingTaskList();
+    void SyncWaitingTaskList(ParseUser user);
+    void SyncAllTaskList(ParseUser user);
+    void SyncTeamName();
     List<User> GetUserList();
     void RemoveTask(TaskItem task);
     TaskItem AddTask(TaskItem task);

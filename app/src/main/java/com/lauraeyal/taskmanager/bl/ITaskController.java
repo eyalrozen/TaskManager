@@ -3,6 +3,7 @@ package com.lauraeyal.taskmanager.bl;
 import android.content.Context;
 
 import com.lauraeyal.taskmanager.common.*;
+import com.parse.ParseUser;
 
 import java.util.List;
 
@@ -11,11 +12,10 @@ import java.util.List;
  */
 public interface ITaskController
 {
-    List<TaskItem> GetWorkerWaitingTaskList(String username);
-    List<TaskItem> GetWorkerTaskList(String username);
-    List<TaskItem> GetTaskList();
+    List<TaskItem> GetAllTaskList();
+    void SyncAllTaskList(ParseUser user);
+    void SyncWaitingTaskList(ParseUser user);
     List<TaskItem> GetWaitingTaskList();
-    List<TaskItem> GetDoneTaskList();
     void AddTask(TaskItem task);
     void createAlarm(String message, int secondsFromNow);
     void removeAlarm(Context context, int alarmID);

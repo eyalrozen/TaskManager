@@ -88,6 +88,7 @@ public class UsersActivity extends AppCompatActivity implements
 
             public void onClick(View v) {
                 // TODO Auto-generated method stub
+                controller.SyncTeamName();
                 Intent ContactListIntent = new Intent(v.getContext(),PhoneContactsActivity.class);
                 startActivityForResult(ContactListIntent,2);
 

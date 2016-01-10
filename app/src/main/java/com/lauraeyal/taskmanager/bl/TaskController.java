@@ -6,6 +6,7 @@ import android.util.Log;
 import com.lauraeyal.taskmanager.activities.*;
 import com.lauraeyal.taskmanager.common.*;
 import com.lauraeyal.taskmanager.dal.*;
+import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,28 +26,17 @@ public class TaskController implements ITaskController {
     }
     private List<String> descriptionList;
 
-   public List<TaskItem> GetWorkerTaskList(String username)
-    {
+
+    public void SyncWaitingTaskList(ParseUser user){
         try{
-            List<TaskItem> list = dao.GetWorkerTaskList(username);
-            return list;
+           dao.SyncWaitingTaskList(user);
         }
         catch(Exception e)
         {
-            return new ArrayList<TaskItem>();
+            Log.d("parse" , "Empty waiting list");
         }
     }
-    public List<TaskItem> GetWorkerWaitingTaskList(String username)
-    {
-        try{
-            List<TaskItem> list = dao.GetWorkerWaitingTaskList(username);
-            return list;
-        }
-        catch(Exception e)
-        {
-            return new ArrayList<TaskItem>();
-        }
-    }
+
     public List<TaskItem> GetTaskList() {
         try{
             List<TaskItem> list = dao.GetTaskList();
@@ -70,9 +60,10 @@ public class TaskController implements ITaskController {
         }
     }
 
-    public List<TaskItem> GetDoneTaskList() {
+    public List<TaskItem> GetAllTaskList()
+    {
         try{
-            List<TaskItem> list = dao.GetDoneTaskList();
+            List<TaskItem> list = dao.GetWaitingTaskList();
             return list;
         }
         catch(Exception e)
@@ -80,6 +71,12 @@ public class TaskController implements ITaskController {
             return new ArrayList<TaskItem>();
         }
     }
+
+    @Override
+    public void SyncAllTaskList(ParseUser user) {
+
+    }
+
 
     public void AddTask(TaskItem task)
     {

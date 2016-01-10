@@ -16,6 +16,7 @@ import com.lauraeyal.taskmanager.bl.TaskAdapter;
 import com.lauraeyal.taskmanager.bl.TaskController;
 import com.lauraeyal.taskmanager.common.OnDataSourceChangeListener;
 import com.lauraeyal.taskmanager.common.User;
+import com.parse.ParseUser;
 
 /**
  * Created by Eyal on 1/2/2016.
@@ -56,6 +57,7 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
+        ParseUser currentUser = ParseUser.getCurrentUser();
         mAdapter = new TaskAdapter(controller.GetWaitingTaskList());
         mRecyclerView.setAdapter(mAdapter);
         // Inflate the layout for this fragment

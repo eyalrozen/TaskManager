@@ -13,6 +13,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -34,13 +35,12 @@ import com.lauraeyal.taskmanager.bl.TaskController;
 import com.lauraeyal.taskmanager.common.OnDataSourceChangeListener;
 import com.lauraeyal.taskmanager.common.TaskItem;
 import com.lauraeyal.taskmanager.common.User;
+import com.parse.Parse;
+import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import com.parse.SaveCallback;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class TasksActivity extends AppCompatActivity
@@ -56,6 +56,9 @@ public class TasksActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tasks);
+        Parse.initialize(this);
+        controller = new TaskController(this);
+        controller.SyncWaitingTaskList(ParseUser.getCurrentUser());
         mRecyclerView = (RecyclerView) findViewById(R.id.my_recycle_view);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -64,12 +67,16 @@ public class TasksActivity extends AppCompatActivity
         setupViewPager(viewPager);
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
-        controller = new TaskController(this);
         mRecyclerView.setHasFixedSize(true);
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
         controller.registerOnDataSourceChanged(this);
-        mAdapter = new TaskAdapter(controller.GetTaskList());
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        mAdapter = new TaskAdapter(controller.GetWaitingTaskList());
         mRecyclerView.setAdapter(mAdapter);
         mAdapter.setOnItemClickListener(this);
         mAdapter.setOnItemLongClickListener(this);
@@ -87,8 +94,8 @@ public class TasksActivity extends AppCompatActivity
             public void onClick(View view) {
                 /*Snackbar.make(view, "Rrfresh", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();*/
-                Intent nextScreen = new Intent(getApplicationContext(), addtaskActivity.class);
-                startActivityForResult(nextScreen, 1);
+               /* Intent nextScreen = new Intent(getApplicationContext(), addtaskActivity.class);
+                startActivityForResult(nextScreen, 1);*/
             }
         });
         addBtn = (Button) findViewById(R.id.addtaskBtn);
@@ -113,7 +120,7 @@ public class TasksActivity extends AppCompatActivity
                     String User = data.getStringExtra("User");
                     String Status = data.getStringExtra("Priority");
                     String dueDate = data.getStringExtra("dueDate");
-                    TaskItem t = new TaskItem(Description,Category,TLocation,dueDate,User,Status,0,-1);
+                    TaskItem t = new TaskItem(Description,Category,TLocation,dueDate,User,Status,"Not Started",0);
                     controller.AddTask(t);
                     mAdapter.notifyDataSetChanged();
                     Snackbar.make(this.viewPager, "Task Added successfuly", Snackbar.LENGTH_LONG)

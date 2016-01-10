@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class UsersController
+public class UsersController implements IUsersController
 {
 	private List<OnDataSourceChangeListener> dataSourceChangedListenrs = new ArrayList<OnDataSourceChangeListener>();
 	IDataAcces dao;
@@ -114,7 +114,7 @@ public class UsersController
 		{return true;}
 	}
 
-	public void setLogedIn(User user)
+	/*public void setLogedIn(User user)
 	{
 		if(user!=null)
 		{
@@ -130,7 +130,7 @@ public class UsersController
 				prefs.edit().putBoolean(AppConst.SharedPrefs_IsLogin, true).putString(AppConst.SharedPrefs_UserName, user.getUserName()).commit();
 			}
 		}
-	}
+	}*/
 
 	public void registerOnDataSourceChanged(OnDataSourceChangeListener listener)
 	{
@@ -152,5 +152,11 @@ public class UsersController
 	public String GetTeamName()
 	{
 		return dao.GetTeamName();
+	}
+
+
+	@Override
+	public void SyncTeamName() {
+		dao.SyncTeamName();
 	}
 }
