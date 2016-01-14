@@ -1,6 +1,8 @@
 package com.lauraeyal.taskmanager.bl;
 
 import com.lauraeyal.taskmanager.common.User;
+import com.parse.FindCallback;
+import com.parse.ParseUser;
 
 import java.util.List;
 
@@ -10,4 +12,7 @@ import java.util.List;
 public interface IUsersController {
     List<User> GetUsersList();
     void SyncTeamName();
+    void SyncParseUsers(FindCallback<ParseUser> callback);
+    void UpdateUsersTable(List<ParseUser> pUsers);
+
 }

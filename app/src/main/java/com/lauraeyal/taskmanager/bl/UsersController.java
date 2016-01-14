@@ -6,6 +6,9 @@ import android.content.SharedPreferences.Editor;
 
 import com.lauraeyal.taskmanager.common.*;
 import com.lauraeyal.taskmanager.dal.*;
+import com.parse.FindCallback;
+import com.parse.ParseUser;
+import com.parse.SignUpCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,18 +38,31 @@ public class UsersController implements IUsersController
 		return dao.GetUserList();
 	}
 
-	public User AddUser(String userName,String password,String phoneNumber,int isMailSent, int isAdmin,String teamName)
-	{
-		User usr = new User();
-		usr.setUserName(userName);
-		usr.setPassword(password);
-		usr.setPhoneNumber(phoneNumber);
-		usr.setMailSent(isMailSent);
-		usr.setPermission(isAdmin);
-		usr.setTeamName(teamName);
-		User newUser = dao.AddUser(usr);
+	public void UpdateUsersTable(List<ParseUser> pUsers){
+		List<User> updatedUserList = new ArrayList<User>();
+		for(ParseUser pUser : pUsers){
+			User newUser = new User();
+			newUser.setUserName(pUser.getUsername());
+			newUser.setPassword(pUser.getString("Phone"));
+			newUser.setPhoneNumber(pUser.getString("Phone"));
+			newUser.setMailSent(pUser.getInt("MailSend"));
+			newUser.setPermission(pUser.getInt("isAdmin"));
+			newUser.setTeamName(pUser.getString("Team"));
+			updatedUserList.add(newUser);
+		}
+		dao.UpdateUsersTable(updatedUserList);
 		invokeDataSourceChanged();
-		return newUser;
+	}
+
+	public void SyncParseUsers(FindCallback<ParseUser> callback){
+		dao.SyncParseUsers(callback);
+	}
+
+	public void AddUser(User newUser , SignUpCallback callback)
+	{
+		User usr;
+		usr = dao.AddUser(newUser,callback);
+		invokeDataSourceChanged();
 	}
 
 	public User GetUser(String userName,String password,String phoneNumber)

@@ -29,6 +29,8 @@ import com.lauraeyal.taskmanager.R;
 import com.lauraeyal.taskmanager.bl.UsersController;
 import com.lauraeyal.taskmanager.common.User;
 import com.lauraeyal.taskmanager.contacts.*;
+import com.parse.ParseException;
+import com.parse.SignUpCallback;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -52,17 +54,18 @@ public class PhoneContactsActivity extends Activity {
     SelectContactAdapter adapter;
     private UsersController controller;
     List<User> usersList;
-    List<String> emailslist = new ArrayList<String>();
-    private Spinner usersSpinner;
+    static int selectedUsersCounter = 0;
+
+    private String userMail;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_phonecontacts);
-        controller = new UsersController(this);
+
         selectContacts = new ArrayList<SelectContact>();
         resolver = this.getContentResolver();
         listView = (ListView) findViewById(R.id.contacts_list);
-
+        controller = new UsersController(this);
         phones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null,null);
 
         LoadContact loadContact = new LoadContact();
@@ -71,30 +74,35 @@ public class PhoneContactsActivity extends Activity {
         doneBtn = (Button) findViewById(R.id.doneBtn);
         doneBtn.setOnClickListener(new View.OnClickListener() {
 
-            @Override
-            public void onClick(View v) {
-                // TODO Auto-generated method stub
-                for (SelectContact usr:adapter._data) {
-                    if(usr.getCheckedBox()==true) {
-                        try {
-                            User u = controller.AddUser(usr.getEmail(), usr.getPhone(), usr.getPhone(), 0, 0, controller.GetTeamName());
-                            addItemsOnUsersSpinner(usr.getEmail());
-                        }
-                        catch (Exception e) {
-                        }
-                    }
-                }
-                //Intent f = new Intent(v.getContext(),UsersActivity.class);
-                Intent resultIntent=new Intent();
-                resultIntent.putExtra("usersList", (Serializable) usersList);
-                setResult(Activity.RESULT_OK, resultIntent);
-                finish();
-            }
-        });
+           @Override
+           public void onClick(View v) {
+               // TODO Auto-generated method stub
+               for (SelectContact usr : adapter._data) {
+                   if (usr.getCheckedBox() == true) {
+                       selectedUsersCounter++;
+                       User newUser = new User();
+                       newUser.setUserName(usr.getEmail());
+                       newUser.setPassword(usr.getPhone());
+                       newUser.setPhoneNumber(usr.getPhone());
+                       newUser.setTeamName(controller.GetTeamName());
+                       newUser.setMailSent(0);
+                       newUser.setPermission(0);
 
+                       controller.AddUser(newUser, new SignUpCallback() {
+                           @Override
+                           public void done(ParseException e) {
+                            selectedUsersCounter --;
+                            if(selectedUsersCounter == 0){
+                                MoveToUsersActivity();
+                            }
 
+                           }
+                       });
+                   }
 
-
+               }
+           }
+       });
         //*** setOnQueryTextListener ***
         search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 
@@ -114,19 +122,11 @@ public class PhoneContactsActivity extends Activity {
         });
     }
 
-    // add items into spinner dynamically
-    public void addItemsOnUsersSpinner(String email) {
-
-        usersSpinner = (Spinner) findViewById(R.id.usersspinner);
-        List<User> tempList = controller.GetUsersList();
-        for(User b : tempList)
-        {
-            emailslist.add(b.getUserName());
-        }
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_item, emailslist);
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        usersSpinner.setAdapter(dataAdapter);
+    void MoveToUsersActivity()
+    {
+        Intent nextScreen = new Intent(getApplicationContext(), UsersActivity.class);
+        startActivity(nextScreen);
+        finish();
     }
     // Load data on background
     class LoadContact extends AsyncTask<Void, Void, Void> {

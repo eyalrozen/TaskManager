@@ -1,12 +1,18 @@
 package com.lauraeyal.taskmanager.bl;
 
+import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 
 import com.lauraeyal.taskmanager.activities.*;
 import com.lauraeyal.taskmanager.common.*;
 import com.lauraeyal.taskmanager.dal.*;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +32,9 @@ public class TaskController implements ITaskController {
     }
     private List<String> descriptionList;
 
+    public void SyncWaitingTaskList(List<TaskItem> ParseWaitingTaskList){
+        dao.SyncWaitingTaskList(ParseWaitingTaskList);
+    }
 
     public void SyncWaitingTaskList(ParseUser user){
         try{
@@ -49,15 +58,22 @@ public class TaskController implements ITaskController {
 
     }
 
+    public void GetList(FindCallback<ParseObject> callback)
+    {
+        dao.GetList(callback);
+    }
     public List<TaskItem> GetWaitingTaskList() {
-        try{
+        return dao.GetWaitingTaskList();
+       /* try{
             List<TaskItem> list = dao.GetWaitingTaskList();
             return list;
         }
         catch(Exception e)
         {
             return new ArrayList<TaskItem>();
-        }
+        }*/
+
+        //return new ArrayList<TaskItem>();
     }
 
     public List<TaskItem> GetAllTaskList()
@@ -78,15 +94,15 @@ public class TaskController implements ITaskController {
     }
 
 
-    public void AddTask(TaskItem task)
+    public void AddTask(TaskItem task,SaveCallback callback)
     {
         try {
             //add the friend to the data base and use the returned friend and add it ti the local cache.
             //the friend that returned from the DAO contain the id of the entity.
-            TaskItem retTask = dao.AddTask(task);
+            TaskItem retTask = dao.AddTask(task,callback);
             if(retTask == null) return;
             //update what ever it will be.
-            invokeDataSourceChanged();
+           // invokeDataSourceChanged();
         } catch (Exception e) {
             Log.e("TaskController", e.getMessage());
         }

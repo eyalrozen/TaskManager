@@ -18,7 +18,9 @@ import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SignUpCallback;
 
+import java.util.ArrayList;
 import java.util.List;
 
 //Start the app on LoginActivity
@@ -38,11 +40,11 @@ public class LoginActivity extends Activity {
 		final ParseUser currentUser = ParseUser.getCurrentUser();
 		if(currentUser != null){
 			if((int)currentUser.get("isAdmin") > 0){
-				startMembersActivity();
+				startTasksActivity();
 
 			}
 			else {
-				startMembersActivity();
+				startTasksActivity();
 
 			}
 		}
@@ -68,13 +70,15 @@ public class LoginActivity extends Activity {
     		String pass = passwordEditText.getText().toString();
 			String phoneNumber = phoneNumberEditText.getText().toString();
 
+			//todo spinner
 			ParseUser.logInInBackground(userName, pass, new LogInCallback() {
 				public void done(ParseUser user, ParseException e) {
+					//todo close
 					if (user != null) {
 						// Hooray! The user is logged in.
 
 						//user.signUpInBackground();
-						startMembersActivity();
+						startTasksActivity();
 					}
 					else {
 						ParseQuery<ParseUser> query = ParseUser.getQuery();
@@ -139,11 +143,20 @@ public class LoginActivity extends Activity {
 					String pass = passwordEditText.getText().toString();
 					String phoneNumber = phoneNumberEditText.getText().toString();
 					try {
-						User u = controller.AddUser(userName, pass, phoneNumber,1,1,teamName);
+						User newUser = new User();
+						newUser.setUserName(userName);
+						newUser.setPassword(pass);
+						newUser.setPhoneNumber(phoneNumber);
+						newUser.setTeamName(teamName);
+						newUser.setPermission(1);
+						newUser.setMailSent(1);
+						controller.AddUser(newUser, new SignUpCallback() {
+							@Override
+							public void done(ParseException e) {
+								startTasksActivity();
+							}
+						});
 						//controller.setLogedIn(u);
-						startMembersActivity();
-
-						return;
 					}
 					catch(Exception e)
 					{}
@@ -152,7 +165,7 @@ public class LoginActivity extends Activity {
 			}
 		}
 	}
-    public void startMembersActivity()
+    public void startTasksActivity()
     {
 		//Explicit intent.
 		Intent  i = new Intent(this,UsersActivity.class);
@@ -163,14 +176,4 @@ public class LoginActivity extends Activity {
 		finish();
     }
 
-	public void startWorkerActivity()
-	{
-		//Explicit intent.
-		Intent  i = new Intent(this,TasksActivity.class);
-		//ParseUser currentUser = ParseUser.getCurrentUser();
-		//i.putExtra("userName",currentUser.getUsername());
-		//Start the activity
-		startActivity(i);
-		finish();
-	}
 }

@@ -54,6 +54,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder>
         holder.mTvDescription.setText(item.GetDescription());
 
 
+
     }
 
     public void UpdateDataSource(List<TaskItem> items)

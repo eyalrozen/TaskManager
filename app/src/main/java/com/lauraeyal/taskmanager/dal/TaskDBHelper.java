@@ -30,7 +30,7 @@ public class TaskDBHelper extends SQLiteOpenHelper {
                 +TaskDBContract.TaskEntry.COLUMN_TASK_DUETIME +" TEXT NOT NULL,"
                 +TaskDBContract.TaskEntry.COLUMN_TASK_ASSIGNEDWORKER +" TEXT NOT NULL,"
                 +TaskDBContract.TaskEntry.COLUMN_TASK_STATUS+" TEXT NOT NULL,"
-                +TaskDBContract.TaskEntry.COLUMN_TASK_APPROVLE + " TEXT NOT NULL  UNIQUE ON CONFLICT REPLACE)";
+                +TaskDBContract.TaskEntry.COLUMN_TASK_APPROVLE + " TEXT NOT NULL)";
         db.execSQL(SQL_CREATE_LOCATION_TABLE);
     }
 

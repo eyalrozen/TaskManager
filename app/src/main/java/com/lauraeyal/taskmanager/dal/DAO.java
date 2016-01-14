@@ -1,10 +1,14 @@
 package com.lauraeyal.taskmanager.dal;
 
+import android.app.Activity;
+import android.app.Application;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.lauraeyal.taskmanager.common.*;
@@ -13,6 +17,7 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 import com.parse.SignUpCallback;
 
 import java.util.ArrayList;
@@ -81,6 +86,26 @@ public class DAO implements IDataAcces
         }
     }
 
+    public void SyncParseUsers(FindCallback<ParseUser> callback)
+    {
+        ParseQuery<ParseUser> query = ParseUser.getQuery();
+        query.whereEqualTo("isAdmin", 0);
+        query.findInBackground(callback);
+    }
+
+    @Override
+    public void UpdateUsersTable(List<User> updateUsersList) {
+        SQLiteDatabase database = null;
+        try {
+            database = MembersdbHelper.getReadableDatabase();
+            database.delete(MembersDBContract.MembersEntry.TABLE_NAME, null, null);
+        }
+        catch(Exception e)
+        {}
+        for(User t:updateUsersList)
+            AddUserFromParse(t);
+    }
+
     public List<TaskItem> GetTaskList() {
         SQLiteDatabase database = null;
         try {
@@ -118,6 +143,36 @@ public class DAO implements IDataAcces
         return AllTaskList;
     }
 
+    public void GetList(FindCallback<ParseObject> callback)
+    {
+        ParseUser user = ParseUser.getCurrentUser();
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Tasks");
+        if(user.getInt("isAdmin") == 0)
+            query.whereEqualTo("user", user);
+        query.whereEqualTo("isApprovle", 0);
+        query.findInBackground(callback);
+       /* query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                if(e==null) {
+                    for (ParseObject task : objects) {
+                        TaskItem f = new TaskItem();
+                        f.setCategory(task.getString("Category"));
+                        f.SetLocation(task.getString("Location"));
+                        f.SetDescription(task.getString("Description"));
+                        f.SetDueTime(task.getString("DueTime"));
+                        f.SetTeamMemebr(user.getEmail());
+                        f.SetPriority(task.getString("Priority"));
+                        f.SetTaskApprovle(task.getInt("isApproved"));
+                        f.SetTaskStatus(task.getString("Status"));
+                        AllTaskList.add(f);
+                    }
+                }
+            }
+
+        });*/
+    }
+
     public void SyncAllTaskList(final ParseUser user){
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Tasks");
         if(user.getInt("isAdmin") == 0)
@@ -146,31 +201,56 @@ public class DAO implements IDataAcces
 
     }
 
-    public void SyncWaitingTaskList(final ParseUser user) {
-       /* SQLiteDatabase database = null;
+    public void SyncWaitingTaskList(List<TaskItem> ParseWaitingTaskList)
+    {
+        SQLiteDatabase database = null;
+        List<TaskItem> tasks = new ArrayList<TaskItem>();
         try {
             database = TaskdbHelper.getReadableDatabase();
-            List<TaskItem> tasks = new ArrayList<TaskItem>();
             Cursor cursor = database.query(TaskDBContract.TaskEntry.TABLE_NAME, tasksColumns,
                     null, null, null, null, null);
 
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
                 TaskItem f = cursorToTask(cursor);
-                if(f.GetTaskStatus() <2)   //0=status waiting , 1=in progress;
+                if(f.GetTaskApprovle() == 0)   //0=status waiting , 1=in progress;
                     tasks.add(f);
                 cursor.moveToNext();
             }
             // make sure to close the cursor
             cursor.close();
-            return tasks;
         } finally {
             if (database != null) {
                 database.close();
             }
-            else
-                return null;
-        }*/
+            CompareLists(ParseWaitingTaskList,tasks);
+        }
+    }
+
+    public void SyncWaitingTaskList(final ParseUser user) {
+        SQLiteDatabase database = null;
+        List<TaskItem> tasks = new ArrayList<TaskItem>();
+        try {
+            database = TaskdbHelper.getReadableDatabase();
+            Cursor cursor = database.query(TaskDBContract.TaskEntry.TABLE_NAME, tasksColumns,
+                    null, null, null, null, null);
+
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                TaskItem f = cursorToTask(cursor);
+                if(f.GetTaskApprovle() == 0)   //0=status waiting , 1=in progress;
+                    tasks.add(f);
+                cursor.moveToNext();
+            }
+            // make sure to close the cursor
+            cursor.close();
+        } finally {
+            if (database != null) {
+                database.close();
+            }
+
+        }
+        final List<TaskItem> localTasks = tasks;
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Tasks");
         if(user.getInt("isAdmin") == 0)
             query.whereEqualTo("user", user);
@@ -178,6 +258,7 @@ public class DAO implements IDataAcces
         query.findInBackground(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> objects, ParseException e) {
+                List<TaskItem> ParseList = new ArrayList<TaskItem>();
                 if(e==null) {
                     for (ParseObject task : objects) {
                         TaskItem f = new TaskItem();
@@ -189,13 +270,34 @@ public class DAO implements IDataAcces
                         f.SetPriority(task.getString("Priority"));
                         f.SetTaskApprovle(task.getInt("isApproved"));
                         f.SetTaskStatus(task.getString("Status"));
-                        WaitingTaskList.add(f);
+                        ParseList.add(f);
                     }
+                    CompareLists(ParseList,localTasks);
                 }
             }
 
         });
 
+    }
+
+    void CompareLists(List<TaskItem> ParseList , List<TaskItem> localTasks){
+        List<TaskItem> updatedTaskList = new ArrayList<>();
+        WaitingTaskList = ParseList;
+       // for (TaskItem prs:ParseList)
+
+         /*   for(TaskItem lcl:localTasks){
+                if(prs.GetDescription() == lcl.GetDescription()){
+                    //TODO compare lists
+                    if(prs.GetTaskStatus() == lcl.GetTaskStatus())
+                    {
+                        if(prs.GetTaskApprovle() == lcl.GetTaskApprovle())
+                        {}
+                        else{
+
+                        }
+                    }
+                }
+            }*/
     }
 
     public List<TaskItem> GetDoneTaskList() {
@@ -226,7 +328,7 @@ public class DAO implements IDataAcces
     }
 
 
-    public TaskItem AddTask(final TaskItem task)
+    public TaskItem AddTask(final TaskItem task , final SaveCallback callback)
     {
         SQLiteDatabase database = null;
         try {
@@ -270,7 +372,7 @@ public class DAO implements IDataAcces
                             Parsetasks.put("user", user);
                             Parsetasks.put("isApprovle", task.GetTaskApprovle());
                             Parsetasks.put("Status", task.GetTaskStatus());
-                            Parsetasks.saveEventually();
+                            Parsetasks.saveInBackground( callback );
                         }
                     } else {
                         // Something went wrong.
@@ -367,7 +469,7 @@ public class DAO implements IDataAcces
     }
 
     @Override
-    public User AddUser(User usr) {
+    public User AddUser(User usr,SignUpCallback callback) {
         SQLiteDatabase database = null;
         try {
             database = MembersdbHelper.getReadableDatabase();
@@ -393,29 +495,54 @@ public class DAO implements IDataAcces
             //create the friend object from the cursor.
             User newUser = cursorTouser(cursor);
             cursor.close();
-            final ParseUser user = new ParseUser();
+            ParseUser user = new ParseUser();
             user.setUsername(usr.getUserName());
             user.setPassword(usr.getPassword());
             user.put("Phone", usr.getPhoneNumber());
             user.put("MailSend", usr.getMailSend());
             user.put("Team" , usr.getTeamName());
             user.put("isAdmin" ,usr.getPermission());
-            user.signUpInBackground(new SignUpCallback() {
-                @Override
-                public void done(ParseException e) {
-                    if(e==null)
-                    {
-
-                    }
-                    else
-                        Toast.makeText(context,"Problem Adding user",Toast.LENGTH_LONG);
-                }
-            });
+            user.signUpInBackground(callback);
             return newUser;
         }finally {
             if (database != null)
                 database.close();
         }
+
+    }
+
+    @Override
+    public void AddUserFromParse(User usr) {
+        SQLiteDatabase database = null;
+        try {
+            database = MembersdbHelper.getReadableDatabase();
+            if (usr == null)
+                return ;
+            //build the content values. - add to db - need to do insert
+            ContentValues values = new ContentValues();
+            values.put(MembersDBContract.MembersEntry.COLUMN_MEMBER_USERNAME, usr.getUserName());
+            values.put(MembersDBContract.MembersEntry.COLUMN_MEMBER_PASSWORD, usr.getPassword());
+            values.put(MembersDBContract.MembersEntry.COLUMN_MEMBER_PHONE, usr.getPhoneNumber());
+            values.put(MembersDBContract.MembersEntry.COLUMN_MEMBER_MAILSENT, (usr.getMailSend()));
+            values.put(MembersDBContract.MembersEntry.COLUMN_MEMBER_TEAM, (MembersDBContract.MembersEntry.TABLE_NAME));
+            values.put(MembersDBContract.MembersEntry.COLUMN_MEMBER_PERMISSION, ( usr.getPermission()));
+
+            //do the insert.
+            long insertId = database.insert(MembersDBContract.MembersEntry.TABLE_NAME, null, values);
+
+            //get the entity from the data base - extra validation, entity was insert properly.
+            Cursor cursor = database.query(MembersDBContract.MembersEntry.TABLE_NAME, membersColumns,
+                    MembersDBContract.MembersEntry._ID + " = " + insertId, null, null, null, null);
+            if (cursor != null)
+                cursor.moveToFirst();
+            //create the friend object from the cursor.
+            cursor.close();
+        }
+        finally {
+            if (database != null)
+                database.close();
+        }
+
 
     }
 

@@ -29,6 +29,8 @@ import com.lauraeyal.taskmanager.*;
 import com.lauraeyal.taskmanager.R;
 import com.lauraeyal.taskmanager.bl.*;
 import com.lauraeyal.taskmanager.common.*;
+import com.parse.FindCallback;
+import com.parse.ParseException;
 import com.parse.ParseUser;
 
 import java.util.List;
@@ -62,7 +64,7 @@ public class UsersActivity extends AppCompatActivity implements
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.refreshButton);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -70,30 +72,41 @@ public class UsersActivity extends AppCompatActivity implements
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
-
-
         // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
-
         // specify an adapter (see also next example)
+        controller.SyncParseUsers(new FindCallback<ParseUser>() {
+          @Override
+          public void done(List<ParseUser> objects, ParseException e) {
+            if(objects.size() == controller.GetUsersList().size())
+                ContinueInit();
+              else
+            {
+                controller.UpdateUsersTable(objects);
+            }
+          }
+      });
+
+        doneBtn = (Button) findViewById(R.id.donebutton);
+        doneBtn.setOnClickListener(OnDoneBtnClickListener);
+        //fb =(Button) findViewById(R.id.addBtn);
+        fab.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View v) {
+                controller.SyncTeamName();
+                Intent ContactListIntent = new Intent(v.getContext(), PhoneContactsActivity.class);
+                startActivity(ContactListIntent);
+            }
+        });
+    }
+
+    void ContinueInit()
+    {
         uAdapter = new UserAdapter(controller.GetUsersList());
         mRecyclerView.setAdapter(uAdapter);
         uAdapter.setOnItemClickListener(this);
         uAdapter.setOnItemLongClickListener(this);
-        doneBtn = (Button) findViewById(R.id.donebutton);
-        doneBtn.setOnClickListener(OnDoneBtnClickListener);
-        addBtn =(Button) findViewById(R.id.addBtn);
-        addBtn.setOnClickListener(new View.OnClickListener() {
-
-            public void onClick(View v) {
-                // TODO Auto-generated method stub
-                controller.SyncTeamName();
-                Intent ContactListIntent = new Intent(v.getContext(),PhoneContactsActivity.class);
-                startActivityForResult(ContactListIntent,2);
-
-            }
-        });
     }
 
     public void onItemClick(View view, int postion) {
@@ -125,9 +138,6 @@ public class UsersActivity extends AppCompatActivity implements
             //Snackbar.make(view,"Short Click "+ usr.getUserName(),Snackbar.LENGTH_LONG).setAction("action",null).show();
         }
     }
-
-
-
     public void onItemLongClick(View view, int postion) {
         User usr = controller.GetUsersList().get(postion);
         if(usr != null) {
@@ -187,7 +197,6 @@ public class UsersActivity extends AppCompatActivity implements
         } else if (id == R.id.nav_about) {
 
         }
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -216,7 +225,7 @@ public class UsersActivity extends AppCompatActivity implements
     };
 
 
-    @Override
+   /* @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -241,7 +250,7 @@ public class UsersActivity extends AppCompatActivity implements
 
         }
 
-    }
+    }*/
 
     @Override
     public void DataSourceChanged() {

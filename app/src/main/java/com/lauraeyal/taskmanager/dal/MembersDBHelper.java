@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class MembersDBHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database
     // version.
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     private static final String DATABASE_NAME = "members.db";
 
@@ -28,7 +28,7 @@ public class MembersDBHelper extends SQLiteOpenHelper {
                 MembersDBContract.MembersEntry.COLUMN_MEMBER_PHONE+" TEXT NOT NULL,"+
                 MembersDBContract.MembersEntry.COLUMN_MEMBER_MAILSENT+" TEXT NOT NULL,"
                 + MembersDBContract.MembersEntry.COLUMN_MEMBER_TEAM+" TEXT NOT NULL,"
-                + MembersDBContract.MembersEntry.COLUMN_MEMBER_PERMISSION+ " TEXT NOT NULL  UNIQUE ON CONFLICT REPLACE)";
+                + MembersDBContract.MembersEntry.COLUMN_MEMBER_PERMISSION+ " TEXT NOT NULL)";
         db.execSQL(SQL_CREATE_LOCATION_TABLE);
     }
 

@@ -35,6 +35,7 @@ import com.lauraeyal.taskmanager.bl.TaskController;
 import com.lauraeyal.taskmanager.common.OnDataSourceChangeListener;
 import com.lauraeyal.taskmanager.common.TaskItem;
 import com.lauraeyal.taskmanager.common.User;
+import com.parse.FindCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -44,22 +45,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TasksActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener,OnDataSourceChangeListener,MyItemClickListener,MyItemLongClickListener {
+        implements NavigationView.OnNavigationItemSelectedListener{
 
     private TaskController controller;
-    private RecyclerView mRecyclerView;
-    private TaskAdapter mAdapter;
     private TabLayout tabLayout;
     private ViewPager viewPager;
-    private Button refreshBtn,addBtn;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tasks);
-        Parse.initialize(this);
         controller = new TaskController(this);
-        controller.SyncWaitingTaskList(ParseUser.getCurrentUser());
-        mRecyclerView = (RecyclerView) findViewById(R.id.my_recycle_view);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -67,20 +62,12 @@ public class TasksActivity extends AppCompatActivity
         setupViewPager(viewPager);
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
-        mRecyclerView.setHasFixedSize(true);
-        // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
-        controller.registerOnDataSourceChanged(this);
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        FloatingActionButton refreshBtn = (FloatingActionButton) findViewById(R.id.refreshButton);
+        FloatingActionButton addTaskBtn = (FloatingActionButton) findViewById(R.id.addBtn);
+        if ((int) ParseUser.getCurrentUser().get("isAdmin") == 0) {
+            addTaskBtn.setVisibility(View.GONE);
         }
-        mAdapter = new TaskAdapter(controller.GetWaitingTaskList());
-        mRecyclerView.setAdapter(mAdapter);
-        mAdapter.setOnItemClickListener(this);
-        mAdapter.setOnItemLongClickListener(this);
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -89,85 +76,22 @@ public class TasksActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        fab.setOnClickListener(new View.OnClickListener() {
+        refreshBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*Snackbar.make(view, "Rrfresh", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();*/
-               /* Intent nextScreen = new Intent(getApplicationContext(), addtaskActivity.class);
-                startActivityForResult(nextScreen, 1);*/
+                Snackbar.make(view, "Rrfresh", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
             }
         });
-        addBtn = (Button) findViewById(R.id.addtaskBtn);
-        addBtn.setOnClickListener(new View.OnClickListener() {
+        addTaskBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View view) {
                 Intent nextScreen = new Intent(getApplicationContext(), addtaskActivity.class);
-                startActivityForResult(nextScreen, 1);
+                startActivity(nextScreen);
             }
         });
-
-
     }
 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch(requestCode) {
-            case (1) : {
-                if (resultCode == Activity.RESULT_OK) {
-                    String Description = data.getStringExtra("Description");
-                    String TLocation = data.getStringExtra("Location");
-                    String Category = data.getStringExtra("Category");
-                    String User = data.getStringExtra("User");
-                    String Status = data.getStringExtra("Priority");
-                    String dueDate = data.getStringExtra("dueDate");
-                    TaskItem t = new TaskItem(Description,Category,TLocation,dueDate,User,Status,"Not Started",0);
-                    controller.AddTask(t);
-                    mAdapter.notifyDataSetChanged();
-                    Snackbar.make(this.viewPager, "Task Added successfuly", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
-                }
-                break;
-            }
-        }
-    }
-
-    public void onItemClick(View view, int postion) {
-       /* TaskItem task = controller.GetTaskList().get(postion);
-
-        if(task != null){*/
-            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-            alertDialogBuilder.setTitle("Warning! ");
-            alertDialogBuilder
-                    .setMessage("Are you sure you want to delete ?")
-                    .setCancelable(false)
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            // if this button is clicked, close
-                            // current activity
-                            finish();
-                        }
-                    })
-                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            // if this button is clicked, just close
-                            // the dialog box and do nothing
-                            dialog.cancel();
-                        }
-                    });
-            AlertDialog alertDialog = alertDialogBuilder.create();
-            alertDialog.show();
-
-            //Snackbar.make(view,"Short Click "+ usr.getUserName(),Snackbar.LENGTH_LONG).setAction("action",null).show();
-        //}
-    }
-
-    public void onItemLongClick(View view, int postion) {
-        TaskItem task = controller.GetTaskList().get(postion);
-        Snackbar.make(view, "Long click " + task.GetDescription(), Snackbar.LENGTH_LONG).setAction("action", null).show();
-        if(task != null){
-            Snackbar.make(view, "Long click " + task.GetDescription(), Snackbar.LENGTH_LONG).setAction("action", null).show();
-        }
-    }
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
@@ -233,14 +157,7 @@ public class TasksActivity extends AppCompatActivity
         return true;
     }
 
-    @Override
-    public void DataSourceChanged() {
-        if (mAdapter != null) {
-            mAdapter.UpdateDataSource(controller.GetTaskList());
-            mAdapter.notifyDataSetChanged();
-        }
 
-    }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {
         private final List<Fragment> mFragmentList = new ArrayList<>();
