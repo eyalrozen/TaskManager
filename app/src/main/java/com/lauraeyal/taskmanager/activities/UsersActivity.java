@@ -1,6 +1,7 @@
 package com.lauraeyal.taskmanager.activities;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -39,12 +40,11 @@ import java.util.List;
 public class UsersActivity extends AppCompatActivity implements
         OnDataSourceChangeListener , NavigationView.OnNavigationItemSelectedListener,MyItemClickListener,MyItemLongClickListener {
     private ImageButton FAB;
-    private Button addBtn;
-    private Button doneBtn;
     private RecyclerView mRecyclerView;
     private UserAdapter uAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     public UsersController controller;
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,10 +61,14 @@ public class UsersActivity extends AppCompatActivity implements
         if(extras !=null){
             String username = extras.getString("userName");
         }
+        progressDialog = new ProgressDialog(UsersActivity.this);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Loading Team Members...");
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.refreshButton);
+        FloatingActionButton addBtn = (FloatingActionButton) findViewById(R.id.addUserBtn);
+        FloatingActionButton doneBtn = (FloatingActionButton) findViewById(R.id.SendMailBtn);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -75,6 +79,7 @@ public class UsersActivity extends AppCompatActivity implements
         // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
+        progressDialog.show();
         // specify an adapter (see also next example)
         controller.SyncParseUsers(new FindCallback<ParseUser>() {
           @Override
@@ -84,19 +89,37 @@ public class UsersActivity extends AppCompatActivity implements
               else
             {
                 controller.UpdateUsersTable(objects);
+                ContinueInit();
             }
           }
       });
-
-        doneBtn = (Button) findViewById(R.id.donebutton);
-        doneBtn.setOnClickListener(OnDoneBtnClickListener);
-        //fb =(Button) findViewById(R.id.addBtn);
-        fab.setOnClickListener(new View.OnClickListener() {
-
+        addBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 controller.SyncTeamName();
                 Intent ContactListIntent = new Intent(v.getContext(), PhoneContactsActivity.class);
                 startActivity(ContactListIntent);
+            }
+        });
+
+        doneBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent email = new Intent(Intent.ACTION_SEND);
+                List<User> allUsers = controller.GetUsersList();
+                for (User usr:allUsers) {
+                    if(usr.getMailSend()==0) {
+                        email.putExtra(Intent.EXTRA_BCC, new String[]{usr.getUserName()});
+                        usr.setMailSent(1);
+                    }
+                }
+                String subject = "TestMail";
+                String message = "This is a test";
+                email.putExtra(Intent.EXTRA_SUBJECT, subject);
+                email.putExtra(Intent.EXTRA_TEXT, message);
+
+                // need this to prompts email client only
+                email.setType("message/rfc822");
+                startActivity(Intent.createChooser(email, "Choose an Email client :"));
             }
         });
     }
@@ -104,6 +127,7 @@ public class UsersActivity extends AppCompatActivity implements
     void ContinueInit()
     {
         uAdapter = new UserAdapter(controller.GetUsersList());
+        progressDialog.dismiss();
         mRecyclerView.setAdapter(uAdapter);
         uAdapter.setOnItemClickListener(this);
         uAdapter.setOnItemLongClickListener(this);
@@ -170,9 +194,9 @@ public class UsersActivity extends AppCompatActivity implements
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+       /* if (id == R.id.action_settings) {
             return true;
-        }
+        }*/
 
         return super.onOptionsItemSelected(item);
     }
@@ -201,57 +225,6 @@ public class UsersActivity extends AppCompatActivity implements
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
-    private View.OnClickListener OnDoneBtnClickListener = new View.OnClickListener(){
-        @Override
-        public void onClick(View v) {
-            Intent email = new Intent(Intent.ACTION_SEND);
-            List<User> allUsers = controller.GetUsersList();
-            for (User usr:allUsers) {
-                if(usr.getMailSend()==0) {
-                    email.putExtra(Intent.EXTRA_BCC, new String[]{usr.getUserName()});
-                    usr.setMailSent(1);
-                }
-            }
-            String subject = "TestMail";
-            String message = "This is a test";
-            email.putExtra(Intent.EXTRA_SUBJECT, subject);
-            email.putExtra(Intent.EXTRA_TEXT, message);
-
-            // need this to prompts email client only
-            email.setType("message/rfc822");
-            startActivity(Intent.createChooser(email, "Choose an Email client :"));
-        }
-    };
-
-
-   /* @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        switch (requestCode) {
-            case 1001:
-                if (resultCode == Activity.RESULT_OK) {
-
-                    Cursor s = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
-                            null, null, null);
-
-                    if (s.moveToFirst()) {
-                        String phoneNum = s.getString(s.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        Toast.makeText(getBaseContext(), phoneNum, Toast.LENGTH_LONG).show();
-                    }
-
-                }
-
-                break;
-            case 2:
-               // controller.GetUsersList();
-                DataSourceChanged();
-
-        }
-
-    }*/
-
     @Override
     public void DataSourceChanged() {
         if (uAdapter != null) {

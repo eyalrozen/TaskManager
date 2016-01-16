@@ -32,54 +32,24 @@ public class TaskController implements ITaskController {
     }
     private List<String> descriptionList;
 
-    public void SyncWaitingTaskList(List<TaskItem> ParseWaitingTaskList){
-        dao.SyncWaitingTaskList(ParseWaitingTaskList);
-    }
 
-    public void SyncWaitingTaskList(ParseUser user){
-        try{
-           dao.SyncWaitingTaskList(user);
-        }
-        catch(Exception e)
-        {
-            Log.d("parse" , "Empty waiting list");
-        }
-    }
-
-    public List<TaskItem> GetTaskList() {
-        try{
-            List<TaskItem> list = dao.GetTaskList();
-            return list;
-        }
-        catch(Exception e)
-        {
-            return new ArrayList<TaskItem>();
-        }
-
-    }
-
-    public void GetList(FindCallback<ParseObject> callback)
+    public void GetParseTaskList(FindCallback<ParseObject> callback)
     {
-        dao.GetList(callback);
+        dao.GetParseTasksList(callback);
     }
+
+    public void SyncParseTaskList(List<TaskItem> ParseTaskList){
+        dao.SyncParseTaskList(ParseTaskList);
+    }
+
     public List<TaskItem> GetWaitingTaskList() {
         return dao.GetWaitingTaskList();
-       /* try{
-            List<TaskItem> list = dao.GetWaitingTaskList();
-            return list;
-        }
-        catch(Exception e)
-        {
-            return new ArrayList<TaskItem>();
-        }*/
-
-        //return new ArrayList<TaskItem>();
     }
 
     public List<TaskItem> GetAllTaskList()
     {
         try{
-            List<TaskItem> list = dao.GetWaitingTaskList();
+            List<TaskItem> list = dao.GetAllTaskList();
             return list;
         }
         catch(Exception e)
@@ -87,12 +57,6 @@ public class TaskController implements ITaskController {
             return new ArrayList<TaskItem>();
         }
     }
-
-    @Override
-    public void SyncAllTaskList(ParseUser user) {
-
-    }
-
 
     public void AddTask(TaskItem task,SaveCallback callback)
     {

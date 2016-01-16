@@ -31,6 +31,7 @@
     <android.support.design.widget.FloatingActionButton android:id="@+id/addBtn"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:layout_gravity="bottom|right" android:layout_marginRight="80dp" android:layout_marginBottom="15.5dp"
+        android:tint="@android:color/white"
         android:src="@android:drawable/ic_input_add" />
     <android.support.design.widget.FloatingActionButton android:id="@+id/refreshButton"
         android:layout_width="wrap_content" android:layout_height="wrap_content"

@@ -19,7 +19,6 @@ public class AddTeamActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_addteam);
-
         //get the team name
         teamNameEditText = (EditText) findViewById(R.id.teamName);
 		AddButton = (Button) findViewById(R.id.addBtn);

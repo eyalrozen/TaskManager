@@ -2,6 +2,7 @@ package com.lauraeyal.taskmanager.activities;
 
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -31,22 +32,18 @@ public class LoginActivity extends Activity {
 	private EditText passwordEditText;
 	private EditText phoneNumberEditText;
 	private UsersController controller;
-
+	ProgressDialog progressDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 		Parse.initialize(this);
+		progressDialog = new ProgressDialog(LoginActivity.this);
+		progressDialog.setIndeterminate(true);
+		progressDialog.setMessage("Authenticating...");
 		final ParseUser currentUser = ParseUser.getCurrentUser();
 		if(currentUser != null){
-			if((int)currentUser.get("isAdmin") > 0){
 				startTasksActivity();
-
-			}
-			else {
-				startTasksActivity();
-
-			}
 		}
         controller = new UsersController(this);
         //ask the controller if the user is logged in.
@@ -66,6 +63,7 @@ public class LoginActivity extends Activity {
     	//get the password, user name and phone number from the edit text.
     	if(userNameEditText!=null && passwordEditText!=null && phoneNumberEditText!=null)
     	{
+			progressDialog.show();
     		String userName  = userNameEditText.getText().toString();
     		String pass = passwordEditText.getText().toString();
 			String phoneNumber = phoneNumberEditText.getText().toString();
@@ -74,11 +72,12 @@ public class LoginActivity extends Activity {
 			ParseUser.logInInBackground(userName, pass, new LogInCallback() {
 				public void done(ParseUser user, ParseException e) {
 					//todo close
+
 					if (user != null) {
 						// Hooray! The user is logged in.
-
 						//user.signUpInBackground();
 						startTasksActivity();
+
 					}
 					else {
 						ParseQuery<ParseUser> query = ParseUser.getQuery();
@@ -96,6 +95,7 @@ public class LoginActivity extends Activity {
 									}
 								}
 								else { // Should be the admin login 1st time
+									progressDialog.dismiss();
 									Toast.makeText(getApplicationContext(),"Unable to get data from server!",Toast.LENGTH_LONG);
 								}
 							}
@@ -136,6 +136,7 @@ public class LoginActivity extends Activity {
 		super.onActivityResult(requestCode, resultCode, data);
 		switch(requestCode) {
 			case (1) : {
+				progressDialog.show();
 				if (resultCode == Activity.RESULT_OK) {
 					String tName = data.getStringExtra("teamName");
 					teamName = tName;
@@ -168,10 +169,7 @@ public class LoginActivity extends Activity {
     public void startTasksActivity()
     {
 		//Explicit intent.
-		Intent  i = new Intent(this,UsersActivity.class);
-		//ParseUser currentUser = ParseUser.getCurrentUser();
-		//i.putExtra("userName",currentUser.getUsername());
-		//Start the activity
+		Intent  i = new Intent(this,TasksActivity.class);
 		startActivity(i);
 		finish();
     }

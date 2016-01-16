@@ -1,8 +1,10 @@
 package com.lauraeyal.taskmanager.activities;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.opengl.Visibility;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -50,6 +52,8 @@ public class TasksActivity extends AppCompatActivity
     private TaskController controller;
     private TabLayout tabLayout;
     private ViewPager viewPager;
+    NavigationView navigationView;
+    DrawerLayout drawer;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,7 +61,7 @@ public class TasksActivity extends AppCompatActivity
         controller = new TaskController(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+      //  getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         setupViewPager(viewPager);
         tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -65,16 +69,15 @@ public class TasksActivity extends AppCompatActivity
         // in content do not change the layout size of the RecyclerView
         FloatingActionButton refreshBtn = (FloatingActionButton) findViewById(R.id.refreshButton);
         FloatingActionButton addTaskBtn = (FloatingActionButton) findViewById(R.id.addBtn);
-        if ((int) ParseUser.getCurrentUser().get("isAdmin") == 0) {
-            addTaskBtn.setVisibility(View.GONE);
-        }
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        if ((int) ParseUser.getCurrentUser().get("isAdmin") == 0) {
+            addTaskBtn.setVisibility(View.GONE);
+        }
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         refreshBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -124,11 +127,20 @@ public class TasksActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        /*if (id == R.id.action_settings) {
             return true;
-        }
+        }*/
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        // If the nav drawer is open, hide action items related to the content view
+        //boolean drawerOpen = drawer.isDrawerOpen(mDrawerList);
+        menu.removeItem(R.id.nav_manageteam);
+       // menu.findItem(R.id.nav_manageteam);
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @SuppressWarnings("StatementWithEmptyBody")

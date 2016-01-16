@@ -70,9 +70,9 @@ public class SelectContactAdapter extends BaseAdapter {
         v.title = (TextView) view.findViewById(R.id.name);
         v.check = (CheckBox) view.findViewById(R.id.check);
         v.phone = (TextView) view.findViewById(R.id.no);
-        v.imageView = (ImageView) view.findViewById(R.id.pic);
+       // v.imageView = (ImageView) view.findViewById(R.id.pic);
         v.email = (TextView) view.findViewById(R.id.mail);
-        v.doneBtn = (Button) view.findViewById(R.id.doneBtn);
+       // v.doneBtn = (Button) view.findViewById(R.id.doneBtn);
 
         final SelectContact data = (SelectContact) _data.get(i);
         v.title.setText(data.getName());
@@ -80,7 +80,7 @@ public class SelectContactAdapter extends BaseAdapter {
         v.phone.setText(data.getPhone());
         v.email.setText(data.getEmail());
         // Set image if exists
-        try {
+       /* try {
 
             if (data.getThumb() != null) {
                 v.imageView.setImageBitmap(data.getThumb());
@@ -98,7 +98,7 @@ public class SelectContactAdapter extends BaseAdapter {
         }
 
         Log.e("Image Thumb", "--------------" + data.getThumb());
-
+*/
         // Set check box listener android
         v.check.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -133,10 +133,10 @@ public class SelectContactAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
     static class ViewHolder {
-        ImageView imageView;
+       // ImageView imageView;
         TextView title, phone,email;
         CheckBox check;
 
-        Button doneBtn;
+       // Button doneBtn;
     }
 }

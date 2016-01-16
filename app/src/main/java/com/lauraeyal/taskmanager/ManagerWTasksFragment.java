@@ -1,5 +1,9 @@
 package com.lauraeyal.taskmanager;
 
+import android.app.Activity;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -34,7 +38,8 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
     private TaskAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private TaskController controller;
-    List<TaskItem> ParseWaitingTaskList = new ArrayList<TaskItem>();
+    List<TaskItem> ParseTaskList = new ArrayList<TaskItem>();
+    ProgressDialog progressDialog;
     public ManagerWTasksFragment() {
         // Required empty public constructor
     }
@@ -50,8 +55,13 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
                              Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_one, container, false);
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.my_recycle_view);
+
         //create the controller.
         Context context = getActivity();
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Loading Tasks...");
+        progressDialog.show();
         controller = new TaskController(getActivity());
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
@@ -62,7 +72,7 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
         mLayoutManager = new LinearLayoutManager(context);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        controller.GetList(new FindCallback<ParseObject>() {
+        controller.GetParseTaskList(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> objects, ParseException e) {
                 if(e==null) {
@@ -72,13 +82,15 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
                         f.SetLocation(task.getString("Location"));
                         f.SetDescription(task.getString("Description"));
                         f.SetDueTime(task.getString("DueTime"));
-                        f.SetTeamMemebr(ParseUser.getCurrentUser().getEmail());
+                        //task.getParseObject("user")
+                        //ParseUser user = (ParseUser) task.getParseObject("user");
+                        f.SetTeamMemebr(task.getString("TeamMember"));
                         f.SetPriority(task.getString("Priority"));
                         f.SetTaskApprovle(task.getInt("isApprovle"));
                         f.SetTaskStatus(task.getString("Status"));
-                        ParseWaitingTaskList.add(f);
+                        ParseTaskList.add(f);
                     }
-                    controller.SyncWaitingTaskList(ParseWaitingTaskList);
+                    controller.SyncParseTaskList(ParseTaskList);
                     mAdapter = new TaskAdapter(controller.GetWaitingTaskList());
                     ContinueInit();
                 }
@@ -91,6 +103,7 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
     }
 
     void ContinueInit (){
+        progressDialog.dismiss();
         mRecyclerView.setAdapter(mAdapter);
         mAdapter.setOnItemClickListener(this);
         mAdapter.setOnItemLongClickListener(this);
@@ -104,7 +117,21 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
     }
 
     public void onItemClick(View view, int postion) {
-        TaskItem task = controller.GetTaskList().get(postion);
+        DialogFragment taskF = new TaskViewDialog();
+        TaskItem selectedTask = controller.GetWaitingTaskList().get(postion);
+        final Bundle taskArgs = new Bundle();
+        taskArgs.putString("Description",selectedTask.GetDescription());
+        taskArgs.putString("DueTime",selectedTask.GetDueTime());
+        taskArgs.putString("Category",selectedTask.getCategory());
+        taskArgs.putString("TeamMember",selectedTask.get_teamMemebr());
+        taskArgs.putString("Location", selectedTask.GetLocation());
+        taskArgs.putInt("Approvle", selectedTask.GetTaskApprovle());
+        taskArgs.putString("Status",selectedTask.GetTaskStatus());
+        taskArgs.putString("Priority",selectedTask.GetPriority());
+        taskF.setArguments(taskArgs);
+        taskF.show(((Activity) view.getContext()).getFragmentManager(),"Task");
+        /*
+        TaskItem task = controller.GetWaitingTaskList().get(postion);
 
         if (task != null) {
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
@@ -130,7 +157,7 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
             alertDialog.show();
             Snackbar.make(view, "Short Click ", Snackbar.LENGTH_LONG).setAction("action", null).show();
 
-        }
+        }*/
     }
 
 
@@ -144,12 +171,11 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
     @Override
     public void DataSourceChanged() {
         if (mAdapter != null) {
-            controller.SyncWaitingTaskList(ParseUser.getCurrentUser());
-            controller.SyncAllTaskList(ParseUser.getCurrentUser());
+           // controller.SyncWaitingTaskList(ParseUser.getCurrentUser());
+            //controller.SyncAllTaskList(ParseUser.getCurrentUser());
             mAdapter.UpdateDataSource(controller.GetWaitingTaskList());
             mAdapter.notifyDataSetChanged();
         }
-
     }
 
 }

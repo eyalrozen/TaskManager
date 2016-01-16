@@ -15,14 +15,14 @@ import java.util.List;
  */
 public interface ITaskController
 {
+    void GetParseTaskList(FindCallback<ParseObject> callback);
+    void SyncParseTaskList(List<TaskItem> ParseTaskList);
     List<TaskItem> GetAllTaskList();
-    void SyncAllTaskList(ParseUser user);
-    void SyncWaitingTaskList(ParseUser user);
     List<TaskItem> GetWaitingTaskList();
     void AddTask(TaskItem task, SaveCallback callback);
     void createAlarm(String message, int secondsFromNow);
     void removeAlarm(Context context, int alarmID);
-    void GetList(FindCallback<ParseObject> callback);
+
 
 
 }

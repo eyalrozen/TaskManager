@@ -2,15 +2,21 @@ package com.lauraeyal.taskmanager.activities;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Debug;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -52,20 +58,27 @@ public class addtaskActivity extends AppCompatActivity implements DatePickerFrag
     RadioGroup rg;
     List<String> emailslist = new ArrayList<String>();
     private Spinner locationSpinner,categorySpinner,usersSpinner;
+    ProgressDialog progressDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_addtask);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Ucontroller = new UsersController(this);
         Tcontroller = new TaskController(this);
-        createBtn = (Button) findViewById(R.id.createBtn);
-        createBtn.setOnClickListener(OnCreateBtnClickListener);
+        //createBtn = (Button) findViewById(R.id.createBtn);
+        //createBtn.setOnClickListener(OnCreateBtnClickListener);
         rg = (RadioGroup) findViewById(R.id.statusradio);
         noramRadio = (RadioButton) findViewById(R.id.Noraml);
         urgentRadio = (RadioButton) findViewById(R.id.Urgent);
         descText = (EditText) findViewById(R.id.descrioptionText);
         addListenerOnSpinnerItemSelection();
         addItemsOnUsersSpinner();
+        progressDialog = new ProgressDialog(addtaskActivity.this);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Creating Task...");
 
     }
 
@@ -78,42 +91,11 @@ public class addtaskActivity extends AppCompatActivity implements DatePickerFrag
         usersSpinner.setOnItemSelectedListener(new CustomOnItemSelectedListener());
     }
 
-    private View.OnClickListener OnCreateBtnClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            if(!TextUtils.isEmpty(descText.getText())) {
-                String dueDate = _date + "T"+ _time;
-                String Desc = descText.getText().toString();
-                TextView checked = (TextView) findViewById(rg.getCheckedRadioButtonId());
-                TaskItem newTask = new TaskItem();
-                newTask.setCategory(String.valueOf(categorySpinner.getSelectedItem()));
-                newTask.SetTaskApprovle(0);
-                newTask.SetPriority(checked.getText().toString());
-                newTask.SetTeamMemebr(String.valueOf(usersSpinner.getSelectedItem()));
-                newTask.SetDueTime(dueDate);
-                newTask.SetDescription(Desc);
-                newTask.SetLocation(String.valueOf(locationSpinner.getSelectedItem()));
-                newTask.SetTaskStatus("Waiting");
-                Tcontroller.AddTask(newTask, new SaveCallback() {
-                    @Override
-                    public void done(ParseException e) {
-                        MoveToTaskActivity();
-                    }
-                });
-
-            }
-            else
-                Snackbar.make(v,"Please fill description",Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        }
-
-        ;
-
-    };
-
     public void MoveToTaskActivity()
     {
         Intent nextScreen = new Intent(getApplicationContext(), TasksActivity.class);
         startActivity(nextScreen);
+        progressDialog.show();
         finish();
     }
     public void showTimePickerDialog(View v) {
@@ -161,5 +143,49 @@ public class addtaskActivity extends AppCompatActivity implements DatePickerFrag
                 android.R.layout.simple_spinner_item, emailslist);
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         usersSpinner.setAdapter(dataAdapter);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_done, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                // app icon in action bar clicked; go home
+                finish();
+                return true;
+            default:
+                if(!TextUtils.isEmpty(descText.getText())) {
+                    progressDialog.show();
+                    String dueDate = _date + " "+ _time;
+                    String Desc = descText.getText().toString();
+                    TextView checked = (TextView) findViewById(rg.getCheckedRadioButtonId());
+                    TaskItem newTask = new TaskItem();
+                    newTask.setCategory(String.valueOf(categorySpinner.getSelectedItem()));
+                    newTask.SetTaskApprovle(0);
+                    newTask.SetPriority(checked.getText().toString());
+                    newTask.SetTeamMemebr(String.valueOf(usersSpinner.getSelectedItem()));
+                    newTask.SetDueTime(dueDate);
+                    newTask.SetDescription(Desc);
+                    newTask.SetLocation(String.valueOf(locationSpinner.getSelectedItem()));
+                    newTask.SetTaskStatus("Waiting");
+                    Tcontroller.AddTask(newTask, new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            MoveToTaskActivity();
+                        }
+                    });
+
+                }
+                else
+                    Snackbar.make(findViewById(android.R.id.content),"Please fill description",Snackbar.LENGTH_LONG).setAction("Action", null).show();
+                return true;
+                //return super.onOptionsItemSelected(item);
+        }
     }
 }

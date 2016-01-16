@@ -5,8 +5,10 @@ package com.lauraeyal.taskmanager.activities;
  */
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -15,6 +17,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -55,54 +58,26 @@ public class PhoneContactsActivity extends Activity {
     private UsersController controller;
     List<User> usersList;
     static int selectedUsersCounter = 0;
-
+    ProgressDialog progressDialog;
     private String userMail;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_phonecontacts);
-
         selectContacts = new ArrayList<SelectContact>();
         resolver = this.getContentResolver();
         listView = (ListView) findViewById(R.id.contacts_list);
+        progressDialog = new ProgressDialog(PhoneContactsActivity.this);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Adding Team Member...");
+
         controller = new UsersController(this);
         phones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null,null);
 
         LoadContact loadContact = new LoadContact();
         loadContact.execute();
         search = (SearchView) findViewById(R.id.searchView);
-        doneBtn = (Button) findViewById(R.id.doneBtn);
-        doneBtn.setOnClickListener(new View.OnClickListener() {
 
-           @Override
-           public void onClick(View v) {
-               // TODO Auto-generated method stub
-               for (SelectContact usr : adapter._data) {
-                   if (usr.getCheckedBox() == true) {
-                       selectedUsersCounter++;
-                       User newUser = new User();
-                       newUser.setUserName(usr.getEmail());
-                       newUser.setPassword(usr.getPhone());
-                       newUser.setPhoneNumber(usr.getPhone());
-                       newUser.setTeamName(controller.GetTeamName());
-                       newUser.setMailSent(0);
-                       newUser.setPermission(0);
-
-                       controller.AddUser(newUser, new SignUpCallback() {
-                           @Override
-                           public void done(ParseException e) {
-                            selectedUsersCounter --;
-                            if(selectedUsersCounter == 0){
-                                MoveToUsersActivity();
-                            }
-
-                           }
-                       });
-                   }
-
-               }
-           }
-       });
         //*** setOnQueryTextListener ***
         search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 
@@ -124,9 +99,45 @@ public class PhoneContactsActivity extends Activity {
 
     void MoveToUsersActivity()
     {
+        progressDialog.dismiss();
         Intent nextScreen = new Intent(getApplicationContext(), UsersActivity.class);
         startActivity(nextScreen);
         finish();
+    }
+
+    public void OnDoneBtnClick(final View v)
+    {
+        progressDialog.show();
+        for (SelectContact usr : adapter._data) {
+            if (usr.getCheckedBox() == true) {
+                selectedUsersCounter++;
+                final User newUser = new User();
+                newUser.setUserName(usr.getEmail());
+                newUser.setPassword(usr.getPhone());
+                newUser.setPhoneNumber(usr.getPhone());
+                newUser.setTeamName(controller.GetTeamName());
+                newUser.setMailSent(0);
+                newUser.setPermission(0);
+
+                controller.AddUser(newUser, new SignUpCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        if(e==null) {
+                            selectedUsersCounter--;
+                            if (selectedUsersCounter == 0) {
+                                MoveToUsersActivity();
+                            }
+                        }
+                        else {
+                            progressDialog.dismiss();
+                            Snackbar.make(v, "Team member " + newUser.getUserName() + " Already exist", Snackbar.LENGTH_LONG).setAction("action", null);
+                        }
+                    }
+                });
+            }
+        }
+        if(selectedUsersCounter == 0)
+            MoveToUsersActivity();
     }
     // Load data on background
     class LoadContact extends AsyncTask<Void, Void, Void> {

@@ -1,5 +1,6 @@
 package com.lauraeyal.taskmanager;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -33,7 +34,8 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
     private TaskAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private TaskController controller;
-    List<TaskItem> ParseWaitingTaskList = new ArrayList<TaskItem>();
+    List<TaskItem> ParseTaskList = new ArrayList<TaskItem>();
+    ProgressDialog progressDialog;
     public ManagerATasksFragment() {
         // Required empty public constructor
     }
@@ -50,6 +52,9 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.my_recycle_view);
         //create the controller.
         Context context = getActivity();
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Loading Tasks...");
         controller = new TaskController(getActivity());
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
@@ -58,8 +63,8 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
         // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(context);
         mRecyclerView.setLayoutManager(mLayoutManager);
-
-        controller.GetList(new FindCallback<ParseObject>() {
+        progressDialog.show();
+        controller.GetParseTaskList(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> objects, ParseException e) {
                 if(e==null) {
@@ -69,14 +74,14 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
                         f.SetLocation(task.getString("Location"));
                         f.SetDescription(task.getString("Description"));
                         f.SetDueTime(task.getString("DueTime"));
-                        f.SetTeamMemebr(ParseUser.getCurrentUser().getEmail());
+                        f.SetTeamMemebr(task.getString("TeamMember"));
                         f.SetPriority(task.getString("Priority"));
                         f.SetTaskApprovle(task.getInt("isApprovle"));
                         f.SetTaskStatus(task.getString("Status"));
-                        ParseWaitingTaskList.add(f);
+                        ParseTaskList.add(f);
                     }
-                    controller.SyncWaitingTaskList(ParseWaitingTaskList);
-                    mAdapter = new TaskAdapter(controller.GetWaitingTaskList());
+                    controller.SyncParseTaskList(ParseTaskList);
+                    mAdapter = new TaskAdapter(controller.GetAllTaskList());
                     ContinueInit();
                 }
             }
@@ -87,6 +92,7 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
     }
 
     void ContinueInit (){
+        progressDialog.dismiss();
         mRecyclerView.setAdapter(mAdapter);
         mAdapter.setOnItemClickListener(this);
         mAdapter.setOnItemLongClickListener(this);
@@ -98,7 +104,7 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
     }
 
     public void onItemClick(View view, int postion) {
-        TaskItem task = controller.GetTaskList().get(postion);
+        TaskItem task = controller.GetAllTaskList().get(postion);
         if (task != null) {
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
             alertDialogBuilder.setTitle("Warning! ");
@@ -133,9 +139,9 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
     @Override
     public void DataSourceChanged() {
         if (mAdapter != null) {
-            controller.SyncWaitingTaskList(ParseUser.getCurrentUser());
-            controller.SyncAllTaskList(ParseUser.getCurrentUser());
-            mAdapter.UpdateDataSource(controller.GetWaitingTaskList());
+           // controller.SyncWaitingTaskList(ParseUser.getCurrentUser());
+           // controller.SyncAllTaskList(ParseUser.getCurrentUser());
+            mAdapter.UpdateDataSource(controller.GetAllTaskList());
             mAdapter.notifyDataSetChanged();
         }
     }
