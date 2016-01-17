@@ -168,6 +168,11 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
             Snackbar.make(view, "Long click " , Snackbar.LENGTH_LONG).setAction("action", null).show();
 
     }
+    public void OnRefreshClicked()
+    {
+        Snackbar.make(getView(),"Refresh clicked",Snackbar.LENGTH_LONG).setAction("action",null);
+
+    }
     @Override
     public void DataSourceChanged() {
         if (mAdapter != null) {

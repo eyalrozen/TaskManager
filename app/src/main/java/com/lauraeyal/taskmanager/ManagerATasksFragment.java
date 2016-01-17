@@ -98,6 +98,11 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
         mAdapter.setOnItemLongClickListener(this);
     }
 
+    public void OnRefreshClicked()
+    {
+        Snackbar.make(getView(),"Refresh clicked",Snackbar.LENGTH_LONG).setAction("action", null);
+
+    }
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);

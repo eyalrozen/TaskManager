@@ -54,6 +54,7 @@ public class TasksActivity extends AppCompatActivity
     private ViewPager viewPager;
     NavigationView navigationView;
     DrawerLayout drawer;
+    ViewPagerAdapter adapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,8 +83,27 @@ public class TasksActivity extends AppCompatActivity
         refreshBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Rrfresh", Snackbar.LENGTH_LONG)
+                /*Snackbar.make(view, "Rrfresh", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+
+                ManagerWTasksFragment fragment = (ManagerWTasksFragment) getSupportFragmentManager().findFragmentById(R.id.);
+                fragment.specific_function_name();*/
+                if(viewPager.getCurrentItem() == 0) //First fragment
+                {
+                    ManagerWTasksFragment frag1 = (ManagerWTasksFragment)adapter.getItem(0);
+                    ManagerATasksFragment frag2 = (ManagerATasksFragment)adapter.getItem(1);
+                    //ManagerWTasksFragment frag1 = (ManagerWTasksFragment)viewPager.getAdapter().instantiateItem(viewPager, viewPager.getCurrentItem());
+                    frag1.OnRefreshClicked();
+                    frag2.OnRefreshClicked();
+                }
+                else if(viewPager.getCurrentItem() == 1) //Second fragment
+                {
+                    ManagerWTasksFragment frag1 = (ManagerWTasksFragment)adapter.getItem(0);
+                    ManagerATasksFragment frag2 = (ManagerATasksFragment)adapter.getItem(1);
+                    //ManagerWTasksFragment frag1 = (ManagerWTasksFragment)viewPager.getAdapter().instantiateItem(viewPager, viewPager.getCurrentItem());
+                    frag1.OnRefreshClicked();
+                    frag2.OnRefreshClicked();
+                }
             }
         });
         addTaskBtn.setOnClickListener(new View.OnClickListener() {
@@ -97,7 +117,7 @@ public class TasksActivity extends AppCompatActivity
 
 
     private void setupViewPager(ViewPager viewPager) {
-        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+         adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFragment(new ManagerWTasksFragment(), "Waiting Tasks");
         adapter.addFragment(new ManagerATasksFragment(), "All Tasks");
         viewPager.setAdapter(adapter);
