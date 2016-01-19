@@ -82,8 +82,6 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
                         f.SetLocation(task.getString("Location"));
                         f.SetDescription(task.getString("Description"));
                         f.SetDueTime(task.getString("DueTime"));
-                        //task.getParseObject("user")
-                        //ParseUser user = (ParseUser) task.getParseObject("user");
                         f.SetTeamMemebr(task.getString("TeamMember"));
                         f.SetPriority(task.getString("Priority"));
                         f.SetTaskApprovle(task.getInt("isApprovle"));
@@ -170,8 +168,14 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
     }
     public void OnRefreshClicked()
     {
-        Snackbar.make(getView(),"Refresh clicked",Snackbar.LENGTH_LONG).setAction("action",null);
+        mAdapter.notifyDataSetChanged();
+        //mAdapter = new TaskAdapter(controller.GetWaitingTaskList());
+        progressDialog.dismiss();
+    }
 
+    public void StartProgressDialog()
+    {
+        progressDialog.show();
     }
     @Override
     public void DataSourceChanged() {

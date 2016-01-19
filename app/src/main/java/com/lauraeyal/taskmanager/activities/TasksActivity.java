@@ -55,6 +55,7 @@ public class TasksActivity extends AppCompatActivity
     NavigationView navigationView;
     DrawerLayout drawer;
     ViewPagerAdapter adapter;
+    ProgressDialog progressDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +63,10 @@ public class TasksActivity extends AppCompatActivity
         controller = new TaskController(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        progressDialog = new ProgressDialog(getApplicationContext());
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Loading Tasks...");
+
       //  getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         setupViewPager(viewPager);
@@ -83,27 +88,35 @@ public class TasksActivity extends AppCompatActivity
         refreshBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*Snackbar.make(view, "Rrfresh", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                    final ManagerWTasksFragment frag1 = (ManagerWTasksFragment)adapter.getItem(0);
+                    final ManagerATasksFragment frag2 = (ManagerATasksFragment)adapter.getItem(1);
+                    frag1.StartProgressDialog();
+                    frag2.StartProgressDialog();
+                    List<TaskItem> UpdateList = new ArrayList<TaskItem>();
+                    controller.GetParseTaskList(new FindCallback<ParseObject>() {
+                        @Override
+                        public void done(List<ParseObject> objects, ParseException e) {
+                            if (e == null) {
+                                List<TaskItem> UpdateList = new ArrayList<>();
+                                for (ParseObject task : objects) {
+                                    TaskItem f = new TaskItem();
+                                    f.setCategory(task.getString("Category"));
+                                    f.SetLocation(task.getString("Location"));
+                                    f.SetDescription(task.getString("Description"));
+                                    f.SetDueTime(task.getString("DueTime"));
+                                    f.SetTeamMemebr(task.getString("TeamMember"));
+                                    f.SetPriority(task.getString("Priority"));
+                                    f.SetTaskApprovle(task.getInt("isApprovle"));
+                                    f.SetTaskStatus(task.getString("Status"));
+                                    UpdateList.add(f);
+                                }
+                                controller.SyncParseTaskList(UpdateList);
+                                frag1.OnRefreshClicked();
+                                frag2.OnRefreshClicked();
 
-                ManagerWTasksFragment fragment = (ManagerWTasksFragment) getSupportFragmentManager().findFragmentById(R.id.);
-                fragment.specific_function_name();*/
-                if(viewPager.getCurrentItem() == 0) //First fragment
-                {
-                    ManagerWTasksFragment frag1 = (ManagerWTasksFragment)adapter.getItem(0);
-                    ManagerATasksFragment frag2 = (ManagerATasksFragment)adapter.getItem(1);
-                    //ManagerWTasksFragment frag1 = (ManagerWTasksFragment)viewPager.getAdapter().instantiateItem(viewPager, viewPager.getCurrentItem());
-                    frag1.OnRefreshClicked();
-                    frag2.OnRefreshClicked();
-                }
-                else if(viewPager.getCurrentItem() == 1) //Second fragment
-                {
-                    ManagerWTasksFragment frag1 = (ManagerWTasksFragment)adapter.getItem(0);
-                    ManagerATasksFragment frag2 = (ManagerATasksFragment)adapter.getItem(1);
-                    //ManagerWTasksFragment frag1 = (ManagerWTasksFragment)viewPager.getAdapter().instantiateItem(viewPager, viewPager.getCurrentItem());
-                    frag1.OnRefreshClicked();
-                    frag2.OnRefreshClicked();
-                }
+                            }
+                        }
+                    });
             }
         });
         addTaskBtn.setOnClickListener(new View.OnClickListener() {

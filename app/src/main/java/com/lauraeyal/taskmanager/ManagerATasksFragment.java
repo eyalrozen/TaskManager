@@ -100,8 +100,14 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
 
     public void OnRefreshClicked()
     {
-        Snackbar.make(getView(),"Refresh clicked",Snackbar.LENGTH_LONG).setAction("action", null);
+        mAdapter.notifyDataSetChanged();
+        //mAdapter = new TaskAdapter(controller.GetAllTaskList());
+        progressDialog.dismiss();
+    }
 
+    public void StartProgressDialog()
+    {
+        progressDialog.show();
     }
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
