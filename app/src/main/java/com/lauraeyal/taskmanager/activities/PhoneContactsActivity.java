@@ -32,7 +32,9 @@ import com.lauraeyal.taskmanager.R;
 import com.lauraeyal.taskmanager.bl.UsersController;
 import com.lauraeyal.taskmanager.common.User;
 import com.lauraeyal.taskmanager.contacts.*;
+import com.parse.LogInCallback;
 import com.parse.ParseException;
+import com.parse.ParseUser;
 import com.parse.SignUpCallback;
 
 import java.io.IOException;
@@ -60,6 +62,7 @@ public class PhoneContactsActivity extends Activity {
     static int selectedUsersCounter = 0;
     ProgressDialog progressDialog;
     private String userMail;
+    private String myUserName,myPassword;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,8 +72,8 @@ public class PhoneContactsActivity extends Activity {
         listView = (ListView) findViewById(R.id.contacts_list);
         progressDialog = new ProgressDialog(PhoneContactsActivity.this);
         progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Adding Team Member...");
-
+        progressDialog.setMessage("Loading contacts");
+        progressDialog.show();
         controller = new UsersController(this);
         phones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null,null);
 
@@ -108,6 +111,9 @@ public class PhoneContactsActivity extends Activity {
     public void OnDoneBtnClick(final View v)
     {
         progressDialog.show();
+        ParseUser admin = ParseUser.getCurrentUser();
+        myUserName = admin.getUsername();
+        myPassword = admin.getString("Phone");
         for (SelectContact usr : adapter._data) {
             if (usr.getCheckedBox() == true) {
                 selectedUsersCounter++;
@@ -125,7 +131,17 @@ public class PhoneContactsActivity extends Activity {
                         if(e==null) {
                             selectedUsersCounter--;
                             if (selectedUsersCounter == 0) {
-                                MoveToUsersActivity();
+                                ParseUser.logOut(); //Logout from last user added
+                                ParseUser.logInInBackground(myUserName, myPassword, new LogInCallback() {
+                                    public void done(ParseUser user, ParseException e) {
+                                        if (e == null && user != null) {
+                                            MoveToUsersActivity();
+                                        }
+                                        else {
+                                            Snackbar.make(v,"Error Login as admin" , Snackbar.LENGTH_SHORT).setAction("action",null);
+                                        }
+                                    }
+                                });
                             }
                         }
                         else {
@@ -136,8 +152,6 @@ public class PhoneContactsActivity extends Activity {
                 });
             }
         }
-        if(selectedUsersCounter == 0)
-            MoveToUsersActivity();
     }
     // Load data on background
     class LoadContact extends AsyncTask<Void, Void, Void> {
@@ -208,7 +222,8 @@ public class PhoneContactsActivity extends Activity {
             super.onPostExecute(aVoid);
             adapter = new SelectContactAdapter(selectContacts, PhoneContactsActivity.this);
             listView.setAdapter(adapter);
-
+            progressDialog.dismiss();
+            progressDialog.setMessage("Adding Team Member...");
             // Select item on listclick
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override

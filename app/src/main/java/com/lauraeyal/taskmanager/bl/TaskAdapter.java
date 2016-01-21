@@ -1,5 +1,6 @@
 package com.lauraeyal.taskmanager.bl;
 
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,7 +29,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder>
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // create a new view
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.list_view_card, parent, false);
+                .inflate(R.layout.tasklist_view_card, parent, false);
 
         ViewHolder vh = new ViewHolder(v,mItemClickListener,mItemLongClickListener);
         return vh;
@@ -49,12 +50,20 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder>
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-
         TaskItem item = taskItems.get(position);
-        holder.mTvDescription.setText(item.GetDescription());
-
-
-
+        String Duetime =item.GetDueTime();
+        String[] separated = Duetime.split("\\s+");
+        holder.taskDescription.setText(item.GetDescription());
+        holder.taskPriority.setText(item.GetPriority());
+        holder.taskLocation.setText(item.GetLocation());
+        holder.taskCategory.setText(item.getCategory());
+        holder.taskStatus.setText(item.GetTaskStatus());
+        holder.taskDate.setText(separated[0]);
+        holder.taskeHour.setText(separated[1]);
+        if(item.GetTaskApprovle() == -1)
+           holder.itemView.findViewById(R.id.tcard_view_layout).setBackgroundColor(Color.RED);
+        if (item.GetTaskStatus().equals("Done"))
+            holder.itemView.findViewById(R.id.tcard_view_layout).setBackgroundColor(Color.GREEN);
     }
 
     public void UpdateDataSource(List<TaskItem> items)
@@ -73,13 +82,19 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder>
     // you provide access to all the views for a data item in a view holder
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,View.OnLongClickListener {
         //Each item is a view in the card.
-        private TextView mTvDescription;
+        private TextView taskDescription,taskPriority,taskLocation,taskStatus,taskDate,taskeHour,taskCategory;
         private MyItemClickListener mListener;
         private MyItemLongClickListener mLongListener;
 
         public ViewHolder(View parentView, MyItemClickListener mItemClickListener, MyItemLongClickListener mItemLongClickListener) {
             super(parentView);
-            mTvDescription = (TextView) parentView.findViewById(R.id.textView_description);
+            taskDescription = (TextView) parentView.findViewById(R.id.cardtask_description);
+            taskPriority = (TextView) parentView.findViewById(R.id.cardtask_priorty);
+            taskLocation = (TextView) parentView.findViewById(R.id.cardtask_location);
+            taskStatus = (TextView) parentView.findViewById(R.id.cardtask_status);
+            taskDate = (TextView) parentView.findViewById(R.id.cardtask_date);
+            taskeHour = (TextView) parentView.findViewById(R.id.cardtask_hour);
+            taskCategory = (TextView) parentView.findViewById(R.id.cardtask_category);
             this.mListener = mItemClickListener;
             this.mLongListener = mItemLongClickListener;
             parentView.setOnClickListener(this);

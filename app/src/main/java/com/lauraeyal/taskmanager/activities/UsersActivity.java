@@ -98,6 +98,7 @@ public class UsersActivity extends AppCompatActivity implements
                 controller.SyncTeamName();
                 Intent ContactListIntent = new Intent(v.getContext(), PhoneContactsActivity.class);
                 startActivity(ContactListIntent);
+                finish();
             }
         });
 
@@ -218,6 +219,9 @@ public class UsersActivity extends AppCompatActivity implements
 
         } else if (id == R.id.nav_logout) {
             ParseUser.logOut();
+            Intent LoginActivity = new Intent(this, LoginActivity.class);
+            startActivity(LoginActivity);
+            finish();
         } else if (id == R.id.nav_about) {
 
         }

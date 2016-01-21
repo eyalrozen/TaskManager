@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.lauraeyal.taskmanager.common.*;
 import com.parse.FindCallback;
+import com.parse.GetCallback;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
@@ -22,7 +23,6 @@ public interface ITaskController
     void AddTask(TaskItem task, SaveCallback callback);
     void createAlarm(String message, int secondsFromNow);
     void removeAlarm(Context context, int alarmID);
-
-
-
+    void UpdateTask( FindCallback<ParseObject> callback , TaskItem task,String column,int UpdatedValue);
+    void UpdateTask(FindCallback<ParseObject> callback , int taskID,String Description,String teamMember,String column,String UpdatedValue);
 }

@@ -22,6 +22,7 @@ import com.lauraeyal.taskmanager.common.OnDataSourceChangeListener;
 import com.lauraeyal.taskmanager.common.TaskItem;
 import com.lauraeyal.taskmanager.common.User;
 import com.parse.FindCallback;
+import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
@@ -114,62 +115,84 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
 
     }
 
-    public void onItemClick(View view, int postion) {
+    public void onItemClick(final View view, int postion) {
+
         DialogFragment taskF = new TaskViewDialog();
-        TaskItem selectedTask = controller.GetWaitingTaskList().get(postion);
-        final Bundle taskArgs = new Bundle();
-        taskArgs.putString("Description",selectedTask.GetDescription());
-        taskArgs.putString("DueTime",selectedTask.GetDueTime());
-        taskArgs.putString("Category",selectedTask.getCategory());
-        taskArgs.putString("TeamMember",selectedTask.get_teamMemebr());
-        taskArgs.putString("Location", selectedTask.GetLocation());
-        taskArgs.putInt("Approvle", selectedTask.GetTaskApprovle());
-        taskArgs.putString("Status",selectedTask.GetTaskStatus());
-        taskArgs.putString("Priority",selectedTask.GetPriority());
-        taskF.setArguments(taskArgs);
-        taskF.show(((Activity) view.getContext()).getFragmentManager(),"Task");
-        /*
-        TaskItem task = controller.GetWaitingTaskList().get(postion);
-
-        if (task != null) {
+        final TaskItem selectedTask = controller.GetWaitingTaskList().get(postion);
+        if(selectedTask.GetTaskApprovle() < 1 && ParseUser.getCurrentUser().getInt("isAdmin") == 0) {
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-            alertDialogBuilder.setTitle("Warning! ");
-            alertDialogBuilder
-                    .setMessage("Are you sure you want to delete ?")
-                    .setCancelable(false)
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            // if this button is clicked, close
-                            // current activity
-
+            alertDialogBuilder.setTitle("Task Approvle");
+            alertDialogBuilder.setMessage("Do you accept the task ?").setCancelable(false)
+                    .setPositiveButton("Accept", new DialogInterface.OnClickListener() {
+                        public void onClick(final DialogInterface dialog, int id) {
+                            controller.UpdateTask(new FindCallback<ParseObject>() {
+                                @Override
+                                public void done(List<ParseObject> objects, ParseException e) {
+                                  if (e == null) {
+                                      for (ParseObject taskobj : objects) {
+                                          taskobj.put("isApprovle", 1);
+                                          taskobj.saveInBackground();
+                                      }
+                                      progressDialog.dismiss();
+                                      dialog.cancel();
+                                      controller.invokeDataSourceChanged();
+                                  }
+                                }
+                            }, selectedTask, "Task_approvle",1);
+                            progressDialog.setMessage("Update task info..");
+                            progressDialog.show();
                         }
                     })
-                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
+                    .setNegativeButton("Reject", new DialogInterface.OnClickListener() {
+                        public void onClick(final DialogInterface dialog, int id) {
                             // if this button is clicked, just close
                             // the dialog box and do nothing
-                            dialog.cancel();
+                            controller.UpdateTask(new FindCallback<ParseObject>() {
+                                @Override
+                                public void done(List<ParseObject> objects, ParseException e) {
+                                    if(e==null)
+                                    {
+                                        for (ParseObject taskobj : objects)
+                                        {
+                                            taskobj.put("isApprovle", -1);
+                                            taskobj.saveInBackground();
+                                        }
+                                        progressDialog.dismiss();
+                                        dialog.cancel();
+                                        controller.invokeDataSourceChanged();
+                                    }
+                                }
+                            },selectedTask,"Task_approvle",-1);
+                            progressDialog.setMessage("Update task info..");
+                            progressDialog.show();
                         }
                     });
             AlertDialog alertDialog = alertDialogBuilder.create();
             alertDialog.show();
-            Snackbar.make(view, "Short Click ", Snackbar.LENGTH_LONG).setAction("action", null).show();
-
-        }*/
+        }
+        else {
+            final Bundle taskArgs = new Bundle();
+            taskArgs.putInt("ID",(int)selectedTask.getId());
+            taskArgs.putString("Description", selectedTask.GetDescription());
+            taskArgs.putString("DueTime", selectedTask.GetDueTime());
+            taskArgs.putString("Category", selectedTask.getCategory());
+            taskArgs.putString("TeamMember", selectedTask.get_teamMemebr());
+            taskArgs.putString("Location", selectedTask.GetLocation());
+            taskArgs.putString("Status", selectedTask.GetTaskStatus());
+            taskArgs.putString("Priority", selectedTask.GetPriority());
+            taskF.setArguments(taskArgs);
+            taskF.show(((Activity) view.getContext()).getFragmentManager(), "Task");
+        }
     }
-
-
 
     public void onItemLongClick(View view, int postion) {
        /* User usr = controller.GetUsersList().get(postion);
         if(usr != null) {*/
             Snackbar.make(view, "Long click " , Snackbar.LENGTH_LONG).setAction("action", null).show();
-
     }
     public void OnRefreshClicked()
     {
-        mAdapter.notifyDataSetChanged();
-        //mAdapter = new TaskAdapter(controller.GetWaitingTaskList());
+        controller.invokeDataSourceChanged();
         progressDialog.dismiss();
     }
 
@@ -180,8 +203,6 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
     @Override
     public void DataSourceChanged() {
         if (mAdapter != null) {
-           // controller.SyncWaitingTaskList(ParseUser.getCurrentUser());
-            //controller.SyncAllTaskList(ParseUser.getCurrentUser());
             mAdapter.UpdateDataSource(controller.GetWaitingTaskList());
             mAdapter.notifyDataSetChanged();
         }

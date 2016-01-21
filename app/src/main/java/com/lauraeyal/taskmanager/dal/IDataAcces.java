@@ -2,6 +2,7 @@ package com.lauraeyal.taskmanager.dal;
 
 import com.lauraeyal.taskmanager.common.*;
 import com.parse.FindCallback;
+import com.parse.GetCallback;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
@@ -25,6 +26,8 @@ public interface IDataAcces {
     List<TaskItem> GetAllTaskList();
     List<TaskItem> GetWaitingTaskList();
     void RemoveTask(TaskItem task);
+    void UpdateTask( FindCallback<ParseObject> callback , TaskItem task,String column,int updatedValue);
+    void UpdateTask(FindCallback<ParseObject> callback , int taskID,String Description,String teamMember,String column,String UpdatedValue);
     TaskItem AddTask(TaskItem task,SaveCallback callback);
 
 }

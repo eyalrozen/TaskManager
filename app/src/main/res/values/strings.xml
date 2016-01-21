@@ -27,4 +27,11 @@
     <string-array name="users_arrays">
         <item>test1@gmail.com</item>
     </string-array>
+
+    <string name="taskstatus_prompt">Choose Category</string>
+    <string-array name="taskstatus_array">
+        <item>Waiting</item>
+        <item>In Progress</item>
+        <item>Done</item>
+    </string-array>
 </resources>

@@ -9,6 +9,7 @@ import com.lauraeyal.taskmanager.activities.*;
 import com.lauraeyal.taskmanager.common.*;
 import com.lauraeyal.taskmanager.dal.*;
 import com.parse.FindCallback;
+import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
@@ -70,6 +71,16 @@ public class TaskController implements ITaskController {
         } catch (Exception e) {
             Log.e("TaskController", e.getMessage());
         }
+    }
+
+    public void UpdateTask( FindCallback<ParseObject> callback ,TaskItem task,String column,int UpdatedValue)
+    {
+        dao.UpdateTask(callback,task,column,UpdatedValue);
+    }
+
+    public void UpdateTask(FindCallback<ParseObject> callback , int taskID,String Description,String teamMember,String column,String UpdatedValue)
+    {
+        dao.UpdateTask(callback,taskID,Description,teamMember,column,UpdatedValue);
     }
 
     public void registerOnDataSourceChanged(OnDataSourceChangeListener listener)

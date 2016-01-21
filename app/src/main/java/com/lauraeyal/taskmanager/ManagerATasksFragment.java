@@ -1,5 +1,7 @@
 package com.lauraeyal.taskmanager;
 
+import android.app.Activity;
+import android.app.DialogFragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -9,6 +11,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -87,7 +90,6 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
             }
         });
         // Inflate the layout for this fragment
-
         return rootView;
     }
 
@@ -100,8 +102,7 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
 
     public void OnRefreshClicked()
     {
-        mAdapter.notifyDataSetChanged();
-        //mAdapter = new TaskAdapter(controller.GetAllTaskList());
+        controller.invokeDataSourceChanged();
         progressDialog.dismiss();
     }
 
@@ -115,31 +116,20 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
     }
 
     public void onItemClick(View view, int postion) {
-        TaskItem task = controller.GetAllTaskList().get(postion);
-        if (task != null) {
-            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-            alertDialogBuilder.setTitle("Warning! ");
-            alertDialogBuilder
-                    .setMessage("Are you sure you want to delete ?")
-                    .setCancelable(false)
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            // if this button is clicked, close
-                            // current activity
-
-                        }
-                    })
-                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            // if this button is clicked, just close
-                            // the dialog box and do nothing
-                            dialog.cancel();
-                        }
-                    });
-            AlertDialog alertDialog = alertDialogBuilder.create();
-            alertDialog.show();
-            Snackbar.make(view, "Short Click ", Snackbar.LENGTH_LONG).setAction("action", null).show();
-        }
+        DialogFragment taskF = new TaskViewDialog();
+        final TaskItem selectedTask = controller.GetAllTaskList().get(postion);
+            final Bundle taskArgs = new Bundle();
+            taskArgs.putInt("ID",(int)selectedTask.getId());
+            taskArgs.putString("Description", selectedTask.GetDescription());
+            taskArgs.putString("DueTime", selectedTask.GetDueTime());
+            taskArgs.putString("Category", selectedTask.getCategory());
+            taskArgs.putString("TeamMember", selectedTask.get_teamMemebr());
+            taskArgs.putString("Location", selectedTask.GetLocation());
+            taskArgs.putString("Status", selectedTask.GetTaskStatus());
+            taskArgs.putString("Priority", selectedTask.GetPriority());
+            taskF.setArguments(taskArgs);
+            taskF.show(((Activity) view.getContext()).getFragmentManager(), "Task");
+        Log.d("test","test");
     }
 
     public void onItemLongClick(View view, int postion) {

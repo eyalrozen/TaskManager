@@ -88,35 +88,7 @@ public class TasksActivity extends AppCompatActivity
         refreshBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                    final ManagerWTasksFragment frag1 = (ManagerWTasksFragment)adapter.getItem(0);
-                    final ManagerATasksFragment frag2 = (ManagerATasksFragment)adapter.getItem(1);
-                    frag1.StartProgressDialog();
-                    frag2.StartProgressDialog();
-                    List<TaskItem> UpdateList = new ArrayList<TaskItem>();
-                    controller.GetParseTaskList(new FindCallback<ParseObject>() {
-                        @Override
-                        public void done(List<ParseObject> objects, ParseException e) {
-                            if (e == null) {
-                                List<TaskItem> UpdateList = new ArrayList<>();
-                                for (ParseObject task : objects) {
-                                    TaskItem f = new TaskItem();
-                                    f.setCategory(task.getString("Category"));
-                                    f.SetLocation(task.getString("Location"));
-                                    f.SetDescription(task.getString("Description"));
-                                    f.SetDueTime(task.getString("DueTime"));
-                                    f.SetTeamMemebr(task.getString("TeamMember"));
-                                    f.SetPriority(task.getString("Priority"));
-                                    f.SetTaskApprovle(task.getInt("isApprovle"));
-                                    f.SetTaskStatus(task.getString("Status"));
-                                    UpdateList.add(f);
-                                }
-                                controller.SyncParseTaskList(UpdateList);
-                                frag1.OnRefreshClicked();
-                                frag2.OnRefreshClicked();
-
-                            }
-                        }
-                    });
+                onRefreshClicked();
             }
         });
         addTaskBtn.setOnClickListener(new View.OnClickListener() {
@@ -124,10 +96,44 @@ public class TasksActivity extends AppCompatActivity
             public void onClick(View view) {
                 Intent nextScreen = new Intent(getApplicationContext(), addtaskActivity.class);
                 startActivity(nextScreen);
+                finish();
             }
         });
     }
 
+
+    public void onRefreshClicked()
+    {
+        final ManagerWTasksFragment frag1 = (ManagerWTasksFragment)adapter.getItem(0);
+        final ManagerATasksFragment frag2 = (ManagerATasksFragment)adapter.getItem(1);
+        frag1.StartProgressDialog();
+        frag2.StartProgressDialog();
+        List<TaskItem> UpdateList = new ArrayList<TaskItem>();
+        controller.GetParseTaskList(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                if (e == null) {
+                    List<TaskItem> UpdateList = new ArrayList<>();
+                    for (ParseObject task : objects) {
+                        TaskItem f = new TaskItem();
+                        f.setCategory(task.getString("Category"));
+                        f.SetLocation(task.getString("Location"));
+                        f.SetDescription(task.getString("Description"));
+                        f.SetDueTime(task.getString("DueTime"));
+                        f.SetTeamMemebr(task.getString("TeamMember"));
+                        f.SetPriority(task.getString("Priority"));
+                        f.SetTaskApprovle(task.getInt("isApprovle"));
+                        f.SetTaskStatus(task.getString("Status"));
+                        UpdateList.add(f);
+                    }
+                    controller.SyncParseTaskList(UpdateList);
+                    frag1.OnRefreshClicked();
+                    frag2.OnRefreshClicked();
+
+                }
+            }
+        });
+    }
 
     private void setupViewPager(ViewPager viewPager) {
          adapter = new ViewPagerAdapter(getSupportFragmentManager());

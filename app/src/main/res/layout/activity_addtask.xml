@@ -125,7 +125,7 @@
         <RadioGroup
             android:id="@+id/statusradio"
             android:layout_width="198dp"
-            android:layout_height="59dp">
+            android:layout_height="69dp">
 
             <RadioButton
             android:id="@+id/Urgent"
@@ -180,22 +180,8 @@
             android:layout_width="wrap_content"
             android:layout_height="37dp"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Hour"
-            android:id="@+id/hourText" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text=":"
-            android:id="@+id/textView12" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="37dp"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Minute"
-            android:id="@+id/minuteText" />
+            android:text="Hour:Minute"
+            android:id="@+id/addtask_hour" />
 
     </LinearLayout>
 
@@ -215,36 +201,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Day"
-            android:id="@+id/dayText" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="/"
-            android:id="@+id/textView13" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Month"
-            android:id="@+id/month" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="/"
-            android:id="@+id/textView14" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Year"
-            android:id="@+id/year" />
+            android:text="Day/Month"
+            android:id="@+id/addtask_date" />
 
     </LinearLayout>
 
@@ -269,7 +227,7 @@
         <Spinner
             android:id="@+id/usersspinner"
             android:layout_width="161dp"
-            android:layout_height="53dp"
+            android:layout_height="match_parent"
             android:entries="@array/users_arrays"
             android:prompt="@string/users_prompt"
             android:layout_marginRight="50dp" />

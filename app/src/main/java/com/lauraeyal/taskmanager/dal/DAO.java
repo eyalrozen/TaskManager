@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.lauraeyal.taskmanager.common.*;
 import com.parse.FindCallback;
+import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -108,6 +109,7 @@ public class DAO implements IDataAcces
 
     public List<TaskItem> GetWaitingTaskList()
     {
+        ParseUser user = ParseUser.getCurrentUser();
         SQLiteDatabase database = null;
         try {
             database = TaskdbHelper.getReadableDatabase();
@@ -118,7 +120,11 @@ public class DAO implements IDataAcces
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
                 TaskItem f = cursorToTask(cursor);
-                if(f.GetTaskStatus().equals("Waiting"))      // 2 = status done
+                if(user.getInt("isAdmin") == 0) {
+                    if (f.GetTaskStatus().equals("Waiting") && f.GetTaskApprovle() > -1)      // 2 = status done
+                        tasks.add(f);
+                }
+                else if (f.GetTaskStatus().equals("Waiting"))
                     tasks.add(f);
                 cursor.moveToNext();
             }
@@ -185,6 +191,49 @@ public class DAO implements IDataAcces
         {
             UpdateTaskTable(newTask);
         }
+    }
+
+    public void  UpdateTask(FindCallback<ParseObject> callback , int taskID,String Description,String teamMember,String column,String UpdatedValue)
+    {
+        SQLiteDatabase database = null;
+        try {
+            database = TaskdbHelper.getReadableDatabase();
+            ContentValues args = new ContentValues();
+            args.put(column,UpdatedValue );
+            database.update(TaskDBContract.TaskEntry.TABLE_NAME, args, TaskDBContract.TaskEntry._ID + "=" + taskID, null);
+
+            ParseQuery<ParseObject> query = ParseQuery.getQuery("Tasks");
+            query.whereEqualTo("Description",Description);
+            query.whereEqualTo("TeamMember",teamMember);
+            query.findInBackground(callback);
+        }
+
+        finally {
+            if (database != null)
+                database.close();
+        }
+    }
+
+    public void UpdateTask( FindCallback<ParseObject> callback,TaskItem task,String column,int UpdatedValue)
+    {
+        SQLiteDatabase database = null;
+        try {
+            database = TaskdbHelper.getReadableDatabase();
+            ContentValues args = new ContentValues();
+            args.put(column,UpdatedValue );
+            database.update(TaskDBContract.TaskEntry.TABLE_NAME, args, TaskDBContract.TaskEntry._ID + "=" + task.getId(), null);
+
+            ParseQuery<ParseObject> query = ParseQuery.getQuery("Tasks");
+            query.whereEqualTo("Description",task.GetDescription());
+            query.whereEqualTo("TeamMember",task.get_teamMemebr());
+            query.findInBackground(callback);
+        }
+
+        finally {
+            if (database != null)
+                database.close();
+        }
+
 
     }
 

@@ -24,7 +24,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder>
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // create a new view
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.list_view_card, parent, false);
+                .inflate(R.layout.tasklist_view_card, parent, false);
 
         ViewHolder vh = new ViewHolder(v);
         return vh;
@@ -69,7 +69,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder>
 
         public ViewHolder(View parentView) {
             super(parentView);
-            mTvDescription = (TextView) parentView.findViewById(R.id.textView_description);
+            mTvDescription = (TextView) parentView.findViewById(R.id.carduser_usermail);
         }
     }
 

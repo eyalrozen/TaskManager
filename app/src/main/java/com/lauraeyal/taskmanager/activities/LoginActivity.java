@@ -37,7 +37,12 @@ public class LoginActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-		Parse.initialize(this);
+		try {
+			Parse.initialize(this);
+		}
+		catch (Exception e) {
+			Log.d("parse", "Parse Already init");
+		}
 		progressDialog = new ProgressDialog(LoginActivity.this);
 		progressDialog.setIndeterminate(true);
 		progressDialog.setMessage("Authenticating...");

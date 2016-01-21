@@ -53,6 +53,7 @@ public class addtaskActivity extends AppCompatActivity implements DatePickerFrag
     private RadioButton noramRadio,urgentRadio;
     private EditText descText;
     private String _date,_time;
+    TextView DateText,hourText;
     private UsersController Ucontroller;
     private TaskController Tcontroller;
     RadioGroup rg;
@@ -74,6 +75,8 @@ public class addtaskActivity extends AppCompatActivity implements DatePickerFrag
         noramRadio = (RadioButton) findViewById(R.id.Noraml);
         urgentRadio = (RadioButton) findViewById(R.id.Urgent);
         descText = (EditText) findViewById(R.id.descrioptionText);
+        hourText = (TextView) findViewById(R.id.addtask_hour);
+        DateText = (TextView) findViewById(R.id.addtask_date);
         addListenerOnSpinnerItemSelection();
         addItemsOnUsersSpinner();
         progressDialog = new ProgressDialog(addtaskActivity.this);
@@ -111,12 +114,14 @@ public class addtaskActivity extends AppCompatActivity implements DatePickerFrag
 
     @Override
     public void returnDate(String value) {
+        DateText.setText(value);
         _date=value;
     }
 
     @Override
     public void returnTime(String value) {
         _time = value;
+        hourText.setText(value);
     }
 
     private class CustomOnItemSelectedListener implements android.widget.AdapterView.OnItemSelectedListener {
