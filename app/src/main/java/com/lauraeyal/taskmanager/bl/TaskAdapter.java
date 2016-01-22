@@ -60,10 +60,15 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder>
         holder.taskStatus.setText(item.GetTaskStatus());
         holder.taskDate.setText(separated[0]);
         holder.taskeHour.setText(separated[1]);
-        if(item.GetTaskApprovle() == -1)
-           holder.itemView.findViewById(R.id.tcard_view_layout).setBackgroundColor(Color.RED);
         if (item.GetTaskStatus().equals("Done"))
             holder.itemView.findViewById(R.id.tcard_view_layout).setBackgroundColor(Color.GREEN);
+        if(item.GetTaskApprovle() == -1) {
+            holder.itemView.findViewById(R.id.tcard_view_layout).setBackgroundColor(Color.RED);
+        }
+        else if(!item.GetTaskStatus().equals("Done") && item.GetTaskApprovle() >-1){
+            holder.itemView.findViewById(R.id.tcard_view_layout).setBackgroundColor(Color.WHITE);
+        }
+
     }
 
     public void UpdateDataSource(List<TaskItem> items)

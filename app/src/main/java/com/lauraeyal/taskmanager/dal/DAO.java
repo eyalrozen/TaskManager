@@ -24,6 +24,8 @@ import com.parse.SignUpCallback;
 import java.util.ArrayList;
 import java.util.List;
 
+import bolts.Task;
+
 /**
  * Created by Eyal on 11/7/2015.
  */
@@ -199,6 +201,8 @@ public class DAO implements IDataAcces
         try {
             database = TaskdbHelper.getReadableDatabase();
             ContentValues args = new ContentValues();
+            if(column.equals(TaskDBContract.TaskEntry.COLUMN_TASK_ASSIGNEDWORKER))
+                args.put(TaskDBContract.TaskEntry.COLUMN_TASK_APPROVLE,0);
             args.put(column,UpdatedValue );
             database.update(TaskDBContract.TaskEntry.TABLE_NAME, args, TaskDBContract.TaskEntry._ID + "=" + taskID, null);
 

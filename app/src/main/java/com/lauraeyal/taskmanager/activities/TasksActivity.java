@@ -59,7 +59,16 @@ public class TasksActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_tasks);
+        if ((int) ParseUser.getCurrentUser().get("isAdmin") == 0) {
+            setContentView(R.layout.activity_tasks_member);
+            navigationView = (NavigationView) findViewById(R.id.membernav_view);
+            navigationView.setNavigationItemSelectedListener(this);
+        }
+        else {
+            setContentView(R.layout.activity_tasks);
+            navigationView = (NavigationView) findViewById(R.id.nav_view);
+            navigationView.setNavigationItemSelectedListener(this);
+        }
         controller = new TaskController(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -83,8 +92,6 @@ public class TasksActivity extends AppCompatActivity
         if ((int) ParseUser.getCurrentUser().get("isAdmin") == 0) {
             addTaskBtn.setVisibility(View.GONE);
         }
-        navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
         refreshBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -192,14 +199,40 @@ public class TasksActivity extends AppCompatActivity
             Intent membersIntent = new Intent(this, UsersActivity.class);
             startActivity(membersIntent);
             finish();
-        }else if (id == R.id.nav_tasks) {
-
+        }
+        else if (id == R.id.nav_tasks) {
+            Intent TasksIntent = new Intent(this, TasksActivity.class);
+            startActivity(TasksIntent);
+            finish();
         }
         else if (id == R.id.nav_settings) {
 
-        } else if (id == R.id.nav_logout) {
+        }
+        else if (id == R.id.nav_logout) {
             ParseUser.logOut();
-        } else if (id == R.id.nav_about) {
+            Intent LoginActivity = new Intent(this, LoginActivity.class);
+            startActivity(LoginActivity);
+            finish();
+        }
+        else if (id == R.id.nav_about) {
+
+        }
+
+        else if (id == R.id.member_nav_tasks) {
+            Intent TasksIntent = new Intent(this, TasksActivity.class);
+            startActivity(TasksIntent);
+            finish();
+        }
+        else if (id == R.id.member_nav_settings) {
+
+        }
+        else if (id == R.id.member_nav_logout) {
+            ParseUser.logOut();
+            Intent LoginActivity = new Intent(this, LoginActivity.class);
+            startActivity(LoginActivity);
+            finish();
+        }
+        else if (id == R.id.member_nav_about) {
 
         }
 

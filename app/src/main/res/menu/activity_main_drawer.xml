@@ -4,13 +4,13 @@
     <group android:checkableBehavior="single">
         <item android:id="@+id/nav_manageteam" android:icon="@drawable/ic_people_black_24dp"
             android:title="Manage Team" />
-        <item android:id="@+id/nav_tasks" android:icon="@android:drawable/ic_menu_camera"
+        <item android:id="@+id/nav_tasks" android:icon="@drawable/ic_content_paste_black_24dp"
             android:title="Manage Tasks" />
         <item android:id="@+id/nav_settings" android:icon="@drawable/ic_settings_black_24dp"
             android:title="Settings" />
         <item android:id="@+id/nav_logout" android:icon="@drawable/ic_exit_to_app_black_24dp"
             android:title="Logout" />
-        <item android:id="@+id/nav_about" android:icon="@android:drawable/ic_menu_info_details"
+        <item android:id="@+id/nav_about" android:icon="@drawable/ic_info_outline_black_24dp"
             android:title="About" />
     </group>
 

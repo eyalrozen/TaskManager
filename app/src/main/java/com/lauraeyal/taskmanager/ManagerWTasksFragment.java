@@ -119,7 +119,21 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
 
         DialogFragment taskF = new TaskViewDialog();
         final TaskItem selectedTask = controller.GetWaitingTaskList().get(postion);
-        if(selectedTask.GetTaskApprovle() < 1 && ParseUser.getCurrentUser().getInt("isAdmin") == 0) {
+        if(selectedTask.GetTaskApprovle() == -1 && ParseUser.getCurrentUser().getInt("isAdmin") == 1) {
+            DialogFragment rejectedTask = new RejectTaskViewDialog();
+            final Bundle taskArgs = new Bundle();
+            taskArgs.putInt("ID",(int)selectedTask.getId());
+            taskArgs.putString("Description", selectedTask.GetDescription());
+            taskArgs.putString("DueTime", selectedTask.GetDueTime());
+            taskArgs.putString("Category", selectedTask.getCategory());
+            taskArgs.putString("TeamMember", selectedTask.get_teamMemebr());
+            taskArgs.putString("Location", selectedTask.GetLocation());
+            taskArgs.putString("Status", selectedTask.GetTaskStatus());
+            taskArgs.putString("Priority", selectedTask.GetPriority());
+            rejectedTask.setArguments(taskArgs);
+            rejectedTask.show(((Activity) view.getContext()).getFragmentManager(), "RejectTask");
+        }
+        else if(selectedTask.GetTaskApprovle() == 0 && ParseUser.getCurrentUser().getInt("isAdmin") == 0) {
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
             alertDialogBuilder.setTitle("Task Approvle");
             alertDialogBuilder.setMessage("Do you accept the task ?").setCancelable(false)
@@ -145,8 +159,6 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
                     })
                     .setNegativeButton("Reject", new DialogInterface.OnClickListener() {
                         public void onClick(final DialogInterface dialog, int id) {
-                            // if this button is clicked, just close
-                            // the dialog box and do nothing
                             controller.UpdateTask(new FindCallback<ParseObject>() {
                                 @Override
                                 public void done(List<ParseObject> objects, ParseException e) {
