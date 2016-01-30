@@ -20,9 +20,11 @@ public interface ITaskController
     void SyncParseTaskList(List<TaskItem> ParseTaskList);
     List<TaskItem> GetAllTaskList();
     List<TaskItem> GetWaitingTaskList();
+    List<TaskItem> SortAllTasksByStatus();
+    List<TaskItem> SortAllTasksByPriority();
+    List<TaskItem> SortWaitingTasksByPriority();
+    void createAlarm(String taskDescription,String teamMember);
     void AddTask(TaskItem task, SaveCallback callback);
-    void createAlarm(String message, int secondsFromNow);
-    void removeAlarm(Context context, int alarmID);
     void UpdateTask( FindCallback<ParseObject> callback , TaskItem task,String column,int UpdatedValue);
     void UpdateTask(FindCallback<ParseObject> callback , int taskID,String Description,String teamMember,String column,String UpdatedValue);
 }

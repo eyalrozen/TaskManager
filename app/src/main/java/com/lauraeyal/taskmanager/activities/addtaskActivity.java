@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Debug;
 import android.support.design.widget.Snackbar;
@@ -31,6 +33,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.lauraeyal.taskmanager.DatePickerFragment;
+import com.lauraeyal.taskmanager.NotificationBroadCastReceiver;
 import com.lauraeyal.taskmanager.R;
 import com.lauraeyal.taskmanager.TimePickerFragment;
 import com.lauraeyal.taskmanager.bl.TaskController;
@@ -38,6 +41,9 @@ import com.lauraeyal.taskmanager.bl.UsersController;
 import com.lauraeyal.taskmanager.common.TaskItem;
 import com.lauraeyal.taskmanager.common.User;
 import com.parse.ParseException;
+import com.parse.ParseInstallation;
+import com.parse.ParsePush;
+import com.parse.ParseQuery;
 import com.parse.SaveCallback;
 
 import java.io.Console;
@@ -168,9 +174,9 @@ public class addtaskActivity extends AppCompatActivity implements DatePickerFrag
                 if(!TextUtils.isEmpty(descText.getText())) {
                     progressDialog.show();
                     String dueDate = _date + " "+ _time;
-                    String Desc = descText.getText().toString();
+                    final String Desc = descText.getText().toString();
                     TextView checked = (TextView) findViewById(rg.getCheckedRadioButtonId());
-                    TaskItem newTask = new TaskItem();
+                    final TaskItem newTask = new TaskItem();
                     newTask.setCategory(String.valueOf(categorySpinner.getSelectedItem()));
                     newTask.SetTaskApprovle(0);
                     newTask.SetPriority(checked.getText().toString());
@@ -182,6 +188,7 @@ public class addtaskActivity extends AppCompatActivity implements DatePickerFrag
                     Tcontroller.AddTask(newTask, new SaveCallback() {
                         @Override
                         public void done(ParseException e) {
+                            //Tcontroller.createAlarm(Desc,newTask.get_teamMemebr());
                             MoveToTaskActivity();
                         }
                     });

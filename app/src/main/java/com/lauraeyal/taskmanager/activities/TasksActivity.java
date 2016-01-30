@@ -40,7 +40,9 @@ import com.lauraeyal.taskmanager.common.User;
 import com.parse.FindCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
+import com.parse.ParseInstallation;
 import com.parse.ParseObject;
+import com.parse.ParsePush;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import java.util.ArrayList;
@@ -59,6 +61,7 @@ public class TasksActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ParseInstallation.getCurrentInstallation().saveInBackground();
         if ((int) ParseUser.getCurrentUser().get("isAdmin") == 0) {
             setContentView(R.layout.activity_tasks_member);
             navigationView = (NavigationView) findViewById(R.id.membernav_view);
@@ -75,7 +78,6 @@ public class TasksActivity extends AppCompatActivity
         progressDialog = new ProgressDialog(getApplicationContext());
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Loading Tasks...");
-
       //  getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         setupViewPager(viewPager);
@@ -107,7 +109,6 @@ public class TasksActivity extends AppCompatActivity
             }
         });
     }
-
 
     public void onRefreshClicked()
     {
@@ -171,11 +172,25 @@ public class TasksActivity extends AppCompatActivity
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
+        final ManagerWTasksFragment frag1 = (ManagerWTasksFragment)adapter.getItem(0);
+        final ManagerATasksFragment frag2 = (ManagerATasksFragment)adapter.getItem(1);
         //noinspection SimplifiableIfStatement
-        /*if (id == R.id.action_settings) {
+        if (id == R.id.action_sortStatus) {
+
+            frag2.OnSortByStatusClicked();
             return true;
-        }*/
+        }
+        if (id == R.id.action_sortDue) {
+            frag2.OnSortByDueClicked();
+            frag1.OnSortByDueClicked();
+            return true;
+        }
+
+        if (id == R.id.action_sortPriority) {
+            frag1.OnSortByPriorityClicked();
+            frag2.OnSortByPriorityClicked();
+            return true;
+        }
 
         return super.onOptionsItemSelected(item);
     }

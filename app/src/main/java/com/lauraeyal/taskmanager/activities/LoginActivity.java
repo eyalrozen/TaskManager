@@ -3,6 +3,7 @@ package com.lauraeyal.taskmanager.activities;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,8 +18,11 @@ import com.parse.FindCallback;
 import com.parse.LogInCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
+import com.parse.ParseInstallation;
+import com.parse.ParsePush;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 import com.parse.SignUpCallback;
 
 import java.util.ArrayList;
@@ -37,6 +41,7 @@ public class LoginActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
 		try {
 			Parse.initialize(this);
 		}
@@ -95,6 +100,7 @@ public class LoginActivity extends Activity {
 										Log.d("Mylog", "Error in username/password!");
 									}
 									else { // Should be the admin login 1st time
+
 										Intent teamNameIntent = new Intent(getApplicationContext(), AddTeamActivity.class);
 										startActivityForResult(teamNameIntent, 1);
 									}
@@ -173,10 +179,11 @@ public class LoginActivity extends Activity {
 	}
     public void startTasksActivity()
     {
-		//Explicit intent.
-		Intent  i = new Intent(this,TasksActivity.class);
+		Intent i = new Intent(getApplicationContext(), TasksActivity.class);
 		startActivity(i);
 		finish();
+		//Explicit intent.
+
     }
 
 }

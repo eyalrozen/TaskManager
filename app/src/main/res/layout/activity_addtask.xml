@@ -19,7 +19,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-        android:layout_marginTop="60dp">
+        android:layout_marginTop="60dp"
+        android:weightSum="1">
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -105,7 +106,7 @@
 </LinearLayout>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
         android:weightSum="1">
@@ -124,29 +125,45 @@
 
         <RadioGroup
             android:id="@+id/statusradio"
-            android:layout_width="198dp"
-            android:layout_height="69dp">
+            android:layout_width="fill_parent"
+            android:layout_height="50dp"
+            android:orientation='horizontal'
+            android:layout_marginTop="7dp"
+            android:gravity="center_vertical"
+            android:weightSum="1">
 
             <RadioButton
-            android:id="@+id/Urgent"
-
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Urgent"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="5dp"
+                android:id="@+id/Low"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:text="Low"
+                android:checked="false"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="5dp"
                 android:layout_marginBottom="10dp" />
 
             <RadioButton
                 android:id="@+id/Noraml"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1.28"
+                android:layout_weight="0"
                 android:text="Noraml"
                 android:checked="true"
-                android:layout_marginLeft="20dp"
-                android:layout_marginTop="5dp" />
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="10dp" />
+
+            <RadioButton
+            android:id="@+id/Urgent"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="-1"
+            android:text="Urgent"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+                android:layout_marginBottom="10dp" />
 
 
         </RadioGroup>

@@ -154,7 +154,6 @@ public class DAO implements IDataAcces
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
                 TaskItem f = cursorToTask(cursor);
-                if(!f.GetTaskStatus().equals("Waiting"))      // 2 = status done
                     tasks.add(f);
                 cursor.moveToNext();
             }

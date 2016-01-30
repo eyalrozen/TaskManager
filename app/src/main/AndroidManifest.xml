@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-feature android:name="android.hardware.camera"
         android:required="true" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -35,13 +36,15 @@
         <activity android:name=".activities.AddTeamActivity" android:label="Add Team" />
 
         <receiver
-            android:name=".NotificationBroadCastReceiver"
-            android:exported="false" >
-            <intent-filter>
-                <action android:name="il.ac.shenkar.ALARM" >
-                </action>
-            </intent-filter>
-        </receiver>
+             android:name=".NotificationBroadCastReceiver"
+             android:exported="false" >
+             <intent-filter>
+                 <action android:name="com.lauraeyal.taskmanager.ALARM" >
+                 </action>
+             </intent-filter>
+         </receiver>
+        <meta-data android:name="com.parse.push.notification_icon"
+        android:resource="@android:drawable/ic_dialog_info"/>
     </application>
 
 

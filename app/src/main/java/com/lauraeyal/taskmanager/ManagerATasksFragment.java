@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.lauraeyal.taskmanager.activities.TasksActivity;
 import com.lauraeyal.taskmanager.bl.TaskAdapter;
 import com.lauraeyal.taskmanager.bl.TaskController;
 import com.lauraeyal.taskmanager.common.OnDataSourceChangeListener;
@@ -37,6 +39,7 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
     private TaskAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private TaskController controller;
+    SwipeRefreshLayout mSwipeRefreshLayout;
     List<TaskItem> ParseTaskList = new ArrayList<TaskItem>();
     ProgressDialog progressDialog;
     public ManagerATasksFragment() {
@@ -55,6 +58,7 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.my_recycle_view);
         //create the controller.
         Context context = getActivity();
+        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_refresh_layout);
         progressDialog = new ProgressDialog(context);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Loading Tasks...");
@@ -70,7 +74,7 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
         controller.GetParseTaskList(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> objects, ParseException e) {
-                if(e==null) {
+                if (e == null) {
                     for (ParseObject task : objects) {
                         TaskItem f = new TaskItem();
                         f.setCategory(task.getString("Category"));
@@ -89,6 +93,13 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
                 }
             }
         });
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                ((TasksActivity)getActivity()).onRefreshClicked();
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+        });
         // Inflate the layout for this fragment
         return rootView;
     }
@@ -104,6 +115,25 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
     {
         controller.invokeDataSourceChanged();
         progressDialog.dismiss();
+    }
+    public void OnSortByDueClicked()
+    {
+        mAdapter.UpdateDataSource(controller.GetAllTaskList());
+        mAdapter.notifyDataSetChanged();
+        // mAdapter = new TaskAdapter(controller.GetAllTaskList());
+
+    }
+
+    public void OnSortByPriorityClicked()
+    {
+        mAdapter.UpdateDataSource(controller.SortAllTasksByPriority());
+        mAdapter.notifyDataSetChanged();
+    }
+
+    public void OnSortByStatusClicked()
+    {
+        mAdapter.UpdateDataSource(controller.SortAllTasksByStatus());
+        mAdapter.notifyDataSetChanged();
     }
 
     public void StartProgressDialog()

@@ -11,6 +11,8 @@ import android.support.v4.app.NotificationCompat;
 
 import com.lauraeyal.taskmanager.activities.TasksActivity;
 import com.lauraeyal.taskmanager.common.AppConst;
+import com.parse.Parse;
+import com.parse.ParseUser;
 
 
 public class NotificationBroadCastReceiver extends BroadcastReceiver {
@@ -19,9 +21,12 @@ public class NotificationBroadCastReceiver extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
 		// Create the Notification.
 		// Fetch the message from the bundle.
-		String message = intent.getStringExtra(AppConst.Extra_Message);
+		String description = intent.getStringExtra("Description");
+        String teamMember = intent.getStringExtra("TeamMember");
 		// crate the notification.
-		createNotification(context, message);
+		/*if(ParseUser.getCurrentUser().getUsername().equals(teamMember))
+		        createNotification(context, description);*/
+            createNotification(context, description);
 	}
 
 	/*
@@ -34,8 +39,8 @@ public class NotificationBroadCastReceiver extends BroadcastReceiver {
                 new NotificationCompat.Builder(context).setSmallIcon(R.drawable.
                         side_nav_bar)
                         .setAutoCancel(true)
-                        .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.side_nav_bar))
-                        .setContentTitle("New notification")
+                        .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_info_outline_black_24dp))
+                        .setContentTitle("New Task recieved")
                         .setContentText(message);
 
         Intent resultIntent = new Intent(context, TasksActivity.class);
@@ -58,9 +63,9 @@ public class NotificationBroadCastReceiver extends BroadcastReceiver {
         mNotifyMgr.notify(mNotificationId, mBuilder.build());
     }
 
-        public static void onCancelNotification(Context context,int notID)
+       /* public static void onCancelNotification(Context context,int notID)
         {
                 NotificationManager mNotificationManager =   (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
                 mNotificationManager.cancelAll();
-        }
+        }*/
 }

@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.lauraeyal.taskmanager.activities.TasksActivity;
 import com.lauraeyal.taskmanager.bl.TaskAdapter;
 import com.lauraeyal.taskmanager.bl.TaskController;
 import com.lauraeyal.taskmanager.common.OnDataSourceChangeListener;
@@ -38,6 +40,7 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
     private RecyclerView mRecyclerView;
     private TaskAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    SwipeRefreshLayout mSwipeRefreshLayout;
     private TaskController controller;
     List<TaskItem> ParseTaskList = new ArrayList<TaskItem>();
     ProgressDialog progressDialog;
@@ -56,7 +59,7 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
                              Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_one, container, false);
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.my_recycle_view);
-
+        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_refresh_layout);
         //create the controller.
         Context context = getActivity();
         progressDialog = new ProgressDialog(context);
@@ -97,7 +100,13 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
         });
 
         // Inflate the layout for this fragment
-
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                ((TasksActivity)getActivity()).onRefreshClicked();
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+        });
         return rootView;
     }
 
@@ -206,6 +215,18 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
     {
         controller.invokeDataSourceChanged();
         progressDialog.dismiss();
+    }
+
+    public void OnSortByPriorityClicked()
+    {
+        mAdapter.UpdateDataSource(controller.SortWaitingTasksByPriority());
+        mAdapter.notifyDataSetChanged();
+    }
+
+    public void OnSortByDueClicked()
+    {
+        mAdapter.UpdateDataSource(controller.GetWaitingTaskList());
+        mAdapter.notifyDataSetChanged();
     }
 
     public void StartProgressDialog()

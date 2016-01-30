@@ -16,6 +16,8 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -44,13 +46,83 @@ public class TaskController implements ITaskController {
     }
 
     public List<TaskItem> GetWaitingTaskList() {
-        return dao.GetWaitingTaskList();
+        try{
+            List<TaskItem> list = dao.GetWaitingTaskList();
+            Collections.sort(list, new Comparator<TaskItem>() {
+                public int compare(TaskItem obj1, TaskItem obj2) {
+                    // TODO Auto-generated method stub
+                    return obj1.GetDueTime().compareToIgnoreCase(obj2.GetDueTime());
+                }
+            });
+            return list;
+        }
+        catch(Exception e)
+        {
+            return new ArrayList<TaskItem>();
+        }
     }
 
     public List<TaskItem> GetAllTaskList()
     {
         try{
             List<TaskItem> list = dao.GetAllTaskList();
+            Collections.sort(list, new Comparator<TaskItem>() {
+                public int compare(TaskItem obj1, TaskItem obj2) {
+                    // TODO Auto-generated method stub
+                    return obj1.GetDueTime().compareToIgnoreCase(obj2.GetDueTime());
+                }
+            });
+            return list;
+        }
+        catch(Exception e)
+        {
+            return new ArrayList<TaskItem>();
+        }
+    }
+
+    public List<TaskItem> SortAllTasksByStatus(){
+        try{
+            List<TaskItem> list = dao.GetAllTaskList();
+            Collections.sort(list, new Comparator<TaskItem>() {
+                public int compare(TaskItem obj1, TaskItem obj2) {
+                    // TODO Auto-generated method stub
+                    return obj1.GetTaskStatus().compareToIgnoreCase(obj2.GetTaskStatus());
+                }
+            });
+            return list;
+        }
+        catch(Exception e)
+        {
+            return new ArrayList<TaskItem>();
+        }
+    }
+
+    public List<TaskItem> SortAllTasksByPriority(){
+        try{
+            List<TaskItem> list = dao.GetAllTaskList();
+            Collections.sort(list, new Comparator<TaskItem>() {
+                public int compare(TaskItem obj1, TaskItem obj2) {
+                    // TODO Auto-generated method stub
+                    return obj1.GetPriority().compareToIgnoreCase(obj2.GetPriority());
+                }
+            });
+            return list;
+        }
+        catch(Exception e)
+        {
+            return new ArrayList<TaskItem>();
+        }
+    }
+
+    public List<TaskItem> SortWaitingTasksByPriority(){
+        try{
+            List<TaskItem> list = dao.GetWaitingTaskList();
+            Collections.sort(list, new Comparator<TaskItem>() {
+                public int compare(TaskItem obj1, TaskItem obj2) {
+                    // TODO Auto-generated method stub
+                    return obj1.GetPriority().compareToIgnoreCase(obj2.GetPriority());
+                }
+            });
             return list;
         }
         catch(Exception e)
@@ -100,13 +172,10 @@ public class TaskController implements ITaskController {
         }
     }
 
-    public void createAlarm(String message,int  secondsFromNow)
+    public void createAlarm(String taskDescription,String teamMember)
     {
-        AlarmHelper.setAlarm(context,secondsFromNow,message);
+        AlarmHelper.setAlarm(context, taskDescription, teamMember);
     }
 
-    public void removeAlarm(Context context,int alarmID)
-    {
-        AlarmHelper.cancelAlarm(context,alarmID);
-    }
+
 }
