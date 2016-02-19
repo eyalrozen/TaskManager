@@ -202,33 +202,65 @@ public class UsersActivity extends AppCompatActivity implements
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
+
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
         if (id == R.id.nav_manageteam) {
-
-        }else if (id == R.id.nav_tasks) {
+            Intent membersIntent = new Intent(this, UsersActivity.class);
+            startActivity(membersIntent);
+            finish();
+        }
+        else if (id == R.id.nav_tasks) {
             Intent TasksIntent = new Intent(this, TasksActivity.class);
             startActivity(TasksIntent);
             finish();
         }
         else if (id == R.id.nav_settings) {
-
-        } else if (id == R.id.nav_logout) {
+            Intent settingActivity = new Intent(this, SettingsActivity.class);
+            startActivity(settingActivity);
+            finish();
+        }
+        else if (id == R.id.nav_logout) {
             ParseUser.logOut();
             Intent LoginActivity = new Intent(this, LoginActivity.class);
             startActivity(LoginActivity);
             finish();
-        } else if (id == R.id.nav_about) {
+        }
+        else if (id == R.id.nav_about) {
+            Intent AboutActivity = new Intent(this, AboutActivity.class);
+            startActivity(AboutActivity);
+            finish();
+        }
 
+        else if (id == R.id.member_nav_tasks) {
+            Intent TasksIntent = new Intent(this, TasksActivity.class);
+            startActivity(TasksIntent);
+            finish();
+        }
+        else if (id == R.id.member_nav_settings) {
+            Intent settingActivity = new Intent(this, SettingsActivity.class);
+            startActivity(settingActivity);
+            finish();
+        }
+        else if (id == R.id.member_nav_logout) {
+            ParseUser.logOut();
+            Intent LoginActivity = new Intent(this, LoginActivity.class);
+            startActivity(LoginActivity);
+            finish();
+        }
+        else if (id == R.id.member_nav_about) {
+            Intent AboutActivity = new Intent(this, AboutActivity.class);
+            startActivity(AboutActivity);
+            finish();
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
     @Override
     public void DataSourceChanged() {
         if (uAdapter != null) {

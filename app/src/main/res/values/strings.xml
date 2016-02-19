@@ -14,7 +14,6 @@
         <item>Room 3</item>
         <item>Room 4</item>
         <item>Room 5</item>
-
     </string-array>
 
     <string name="categories_prompt">Choose Category</string>
@@ -23,6 +22,14 @@
         <item>Electricity</item>
         <item>Computers</item>
         <item>General</item>
+    </string-array>
+
+    <string name="time_promt">Select Time</string>
+    <string-array name="time_arrays">
+        <item>5</item>
+        <item>10</item>
+        <item>30</item>
+        <item>60</item>
     </string-array>
 
     <string name="users_prompt">Choose Category</string>

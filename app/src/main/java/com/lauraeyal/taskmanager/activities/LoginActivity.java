@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -37,6 +38,9 @@ public class LoginActivity extends Activity {
 	private EditText phoneNumberEditText;
 	private UsersController controller;
 	ProgressDialog progressDialog;
+	SharedPreferences sharedpreferences;
+	public static final String MyPREFERENCES = "MyPrefs" ;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -179,6 +183,14 @@ public class LoginActivity extends Activity {
 	}
     public void startTasksActivity()
     {
+
+		sharedpreferences = getSharedPreferences(LoginActivity.MyPREFERENCES, Context.MODE_PRIVATE);
+		int refreshTimer=sharedpreferences.getInt("autoRefresh", 0);
+		if(refreshTimer==0) {
+			SharedPreferences.Editor editor = sharedpreferences.edit();
+			editor.putInt("autoRefresh", 30);
+			editor.apply();
+		}
 		Intent i = new Intent(getApplicationContext(), TasksActivity.class);
 		startActivity(i);
 		finish();

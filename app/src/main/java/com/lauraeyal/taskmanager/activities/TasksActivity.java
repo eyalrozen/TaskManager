@@ -221,7 +221,9 @@ public class TasksActivity extends AppCompatActivity
             finish();
         }
         else if (id == R.id.nav_settings) {
-
+            Intent settingActivity = new Intent(this, SettingsActivity.class);
+            startActivity(settingActivity);
+            finish();
         }
         else if (id == R.id.nav_logout) {
             ParseUser.logOut();
@@ -230,7 +232,9 @@ public class TasksActivity extends AppCompatActivity
             finish();
         }
         else if (id == R.id.nav_about) {
-
+            Intent AboutActivity = new Intent(this, AboutActivity.class);
+            startActivity(AboutActivity);
+            finish();
         }
 
         else if (id == R.id.member_nav_tasks) {
@@ -239,7 +243,9 @@ public class TasksActivity extends AppCompatActivity
             finish();
         }
         else if (id == R.id.member_nav_settings) {
-
+            Intent settingActivity = new Intent(this, SettingsActivity.class);
+            startActivity(settingActivity);
+            finish();
         }
         else if (id == R.id.member_nav_logout) {
             ParseUser.logOut();
@@ -248,9 +254,10 @@ public class TasksActivity extends AppCompatActivity
             finish();
         }
         else if (id == R.id.member_nav_about) {
-
+            Intent AboutActivity = new Intent(this, AboutActivity.class);
+            startActivity(AboutActivity);
+            finish();
         }
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;

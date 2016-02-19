@@ -21,7 +21,7 @@
             android:value="fCD5m26rXryOjbRvwTajeqVU8ErkbbFXywxeog3V" />
         <activity
             android:name=".activities.LoginActivity"
-            android:label="Users"
+            android:label="Login"
             android:theme="@style/AppTheme.NoActionBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -29,12 +29,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.UsersActivity" android:label="Login"/>
+        <activity android:name=".activities.UsersActivity" android:label="Team Members"/>
         <activity android:name=".activities.PhoneContactsActivity" android:label="Add Member"/>
         <activity android:name=".activities.TasksActivity" android:label="Team Tasks"/>
         <activity android:name=".activities.addtaskActivity" android:label="Add Task" />
         <activity android:name=".activities.AddTeamActivity" android:label="Add Team" />
-
+        <activity android:name=".activities.SettingsActivity" android:label="Settings" />
+        <activity android:name=".activities.AboutActivity" android:label="About" />
         <receiver
              android:name=".NotificationBroadCastReceiver"
              android:exported="false" >

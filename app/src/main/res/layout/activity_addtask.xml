@@ -36,12 +36,13 @@
             android:layout_marginTop="10dp"
             android:singleLine="false"
             android:layout_marginLeft="5dp"
-            android:textSize="30dp" />
+            android:textSize="20dp" />
 
         <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/descrioptionText"
+            android:maxLength="20"
             android:layout_weight="1" />
 
     </LinearLayout>
@@ -49,7 +50,7 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp">
+        android:layout_marginBottom="0dp">
 
     <TextView
         android:layout_width="wrap_content"
@@ -61,7 +62,7 @@
         android:layout_marginTop="10dp"
         android:singleLine="false"
         android:layout_marginLeft="5dp"
-        android:textSize="30dp" />
+        android:textSize="20dp" />
 
     <Spinner
         android:id="@+id/categoryspinner"
@@ -71,13 +72,12 @@
         android:prompt="@string/categories_prompt"
         android:layout_marginRight="50dp"
         android:layout_marginBottom="10dp"
-        android:layout_marginTop="0dp" />
+        android:layout_marginTop="10dp" />
 
     </LinearLayout>
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:weightSum="1"
         android:layout_marginBottom="10dp">
 
     <TextView
@@ -90,19 +90,17 @@
         android:layout_marginTop="10dp"
         android:singleLine="false"
         android:layout_marginLeft="5dp"
-        android:textSize="30dp"
-        android:layout_weight="0.95" />
+        android:textSize="20dp"/>
 
     <Spinner
         android:id="@+id/locationspinner"
-        android:layout_width="161dp"
+        android:layout_width="wrap_content"
         android:layout_height="53dp"
         android:entries="@array/location_arrays"
         android:prompt="@string/location_prompt"
         android:layout_marginRight="50dp"
         android:layout_marginBottom="10dp"
-        android:layout_marginTop="0dp"
-        android:layout_weight="0.80" />
+        android:layout_marginTop="5dp" />
 </LinearLayout>
 
     <LinearLayout
@@ -121,7 +119,7 @@
             android:layout_marginTop="10dp"
             android:singleLine="false"
             android:layout_marginLeft="5dp"
-            android:textSize="30dp"/>
+            android:textSize="20dp"/>
 
         <RadioGroup
             android:id="@+id/statusradio"
@@ -144,11 +142,11 @@
                 android:layout_marginBottom="10dp" />
 
             <RadioButton
-                android:id="@+id/Noraml"
+                android:id="@+id/Normal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
-                android:text="Noraml"
+                android:text="Normal"
                 android:checked="true"
                 android:layout_marginLeft="15dp"
                 android:layout_marginTop="5dp"
@@ -156,7 +154,6 @@
 
             <RadioButton
             android:id="@+id/Urgent"
-
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="-1"
@@ -182,10 +179,10 @@
             android:id="@+id/textView10"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="0dp"
             android:singleLine="false"
             android:layout_marginLeft="5dp"
-            android:textSize="30dp" />
+            android:textSize="20dp" />
 
         <Button
             android:layout_width="34dp"
@@ -199,14 +196,6 @@
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="Hour:Minute"
             android:id="@+id/addtask_hour" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="325dp"
-        android:layout_height="wrap_content"
-        android:weightSum="1"
-        android:layout_marginBottom="10dp">
 
         <Button
             android:layout_width="34dp"
@@ -223,7 +212,7 @@
 
     </LinearLayout>
 
-    <LinearLayout
+        <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:weightSum="1"
@@ -236,18 +225,20 @@
             android:id="@+id/textView8"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="5dp"
             android:singleLine="false"
             android:layout_marginLeft="5dp"
-            android:textSize="30dp"/>
+            android:textSize="20dp"/>
 
         <Spinner
             android:id="@+id/usersspinner"
-            android:layout_width="161dp"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:entries="@array/users_arrays"
             android:prompt="@string/users_prompt"
-            android:layout_marginRight="50dp" />
+            android:layout_marginRight="50dp"
+            android:layout_marginBottom="0dp"
+            android:layout_marginTop="5dp"  />
     </LinearLayout>
 </LinearLayout>
 </android.support.design.widget.CoordinatorLayout>

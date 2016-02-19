@@ -56,7 +56,7 @@ import bolts.Task;
 public class addtaskActivity extends AppCompatActivity implements DatePickerFragment.PickDate, TimePickerFragment.PickTime {
     private Button createBtn;
     private EditText dscText;
-    private RadioButton noramRadio,urgentRadio;
+    private RadioButton normalRadio,urgentRadio,lowRadio;
     private EditText descText;
     private String _date,_time;
     TextView DateText,hourText;
@@ -78,8 +78,9 @@ public class addtaskActivity extends AppCompatActivity implements DatePickerFrag
         //createBtn = (Button) findViewById(R.id.createBtn);
         //createBtn.setOnClickListener(OnCreateBtnClickListener);
         rg = (RadioGroup) findViewById(R.id.statusradio);
-        noramRadio = (RadioButton) findViewById(R.id.Noraml);
+        normalRadio = (RadioButton) findViewById(R.id.Normal);
         urgentRadio = (RadioButton) findViewById(R.id.Urgent);
+        lowRadio = (RadioButton) findViewById(R.id.Low);
         descText = (EditText) findViewById(R.id.descrioptionText);
         hourText = (TextView) findViewById(R.id.addtask_hour);
         DateText = (TextView) findViewById(R.id.addtask_date);

@@ -15,9 +15,13 @@ import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
+import java.sql.Time;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -51,7 +55,16 @@ public class TaskController implements ITaskController {
             Collections.sort(list, new Comparator<TaskItem>() {
                 public int compare(TaskItem obj1, TaskItem obj2) {
                     // TODO Auto-generated method stub
-                    return obj1.GetDueTime().compareToIgnoreCase(obj2.GetDueTime());
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM HH:mm");
+                    Date date1 = null;
+                    Date date2 = null;
+                    try {
+                        date1 = sdf.parse(obj1.GetDueTime());
+                        date2 = sdf.parse(obj2.GetDueTime());
+                    } catch (java.text.ParseException e) {
+                        e.printStackTrace();
+                    }
+                    return date1.compareTo(date2);
                 }
             });
             return list;
@@ -69,7 +82,16 @@ public class TaskController implements ITaskController {
             Collections.sort(list, new Comparator<TaskItem>() {
                 public int compare(TaskItem obj1, TaskItem obj2) {
                     // TODO Auto-generated method stub
-                    return obj1.GetDueTime().compareToIgnoreCase(obj2.GetDueTime());
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM HH:mm");
+                    Date date1 = null;
+                    Date date2 = null;
+                    try {
+                        date1 = sdf.parse(obj1.GetDueTime());
+                        date2 = sdf.parse(obj2.GetDueTime());
+                    } catch (java.text.ParseException e) {
+                        e.printStackTrace();
+                    }
+                    return date1.compareTo(date2);
                 }
             });
             return list;
@@ -174,7 +196,7 @@ public class TaskController implements ITaskController {
 
     public void createAlarm(String taskDescription,String teamMember)
     {
-        AlarmHelper.setAlarm(context, taskDescription, teamMember);
+        AlarmHelper.setAlarm(context,30);
     }
 
 

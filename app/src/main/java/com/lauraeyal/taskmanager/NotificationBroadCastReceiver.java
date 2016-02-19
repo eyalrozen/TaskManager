@@ -21,12 +21,10 @@ public class NotificationBroadCastReceiver extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
 		// Create the Notification.
 		// Fetch the message from the bundle.
-		String description = intent.getStringExtra("Description");
-        String teamMember = intent.getStringExtra("TeamMember");
+
 		// crate the notification.
-		/*if(ParseUser.getCurrentUser().getUsername().equals(teamMember))
-		        createNotification(context, description);*/
-            createNotification(context, description);
+
+            //createNotification(context, description);
 	}
 
 	/*
