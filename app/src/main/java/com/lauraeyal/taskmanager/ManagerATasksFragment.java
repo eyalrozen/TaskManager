@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.lauraeyal.taskmanager.activities.TasksActivity;
 import com.lauraeyal.taskmanager.bl.TaskAdapter;
@@ -41,7 +42,7 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
     private TaskController controller;
     SwipeRefreshLayout mSwipeRefreshLayout;
     List<TaskItem> ParseTaskList = new ArrayList<TaskItem>();
-    ProgressDialog progressDialog;
+    public ProgressDialog progressDialog;
     public ManagerATasksFragment() {
         // Required empty public constructor
     }
@@ -88,6 +89,11 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
                         ParseTaskList.add(f);
                     }
                     controller.SyncParseTaskList(ParseTaskList);
+                    mAdapter = new TaskAdapter(controller.GetAllTaskList());
+                    ContinueInit();
+                }
+                else
+                {
                     mAdapter = new TaskAdapter(controller.GetAllTaskList());
                     ContinueInit();
                 }
@@ -139,6 +145,13 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
     public void StartProgressDialog()
     {
         progressDialog.show();
+    }
+
+    public void ParseError()
+    {
+        progressDialog.dismiss();
+        Toast err = Toast.makeText(getContext(),"Unable to get data from server",Toast.LENGTH_LONG);
+        err.show();
     }
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {

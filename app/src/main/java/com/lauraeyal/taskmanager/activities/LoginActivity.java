@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -23,6 +24,7 @@ import com.parse.ParseInstallation;
 import com.parse.ParsePush;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.PushService;
 import com.parse.SaveCallback;
 import com.parse.SignUpCallback;
 
@@ -39,6 +41,7 @@ public class LoginActivity extends Activity {
 	private UsersController controller;
 	ProgressDialog progressDialog;
 	SharedPreferences sharedpreferences;
+	public static boolean isFirstTime=false;
 	public static final String MyPREFERENCES = "MyPrefs" ;
 
     @Override
@@ -60,6 +63,7 @@ public class LoginActivity extends Activity {
 				startTasksActivity();
 		}
         controller = new UsersController(this);
+		controller.SyncTeamName();
         //ask the controller if the user is logged in.
        /* if(controller.isLoggedIn())
         {
@@ -90,8 +94,8 @@ public class LoginActivity extends Activity {
 					if (user != null) {
 						// Hooray! The user is logged in.
 						//user.signUpInBackground();
+						isFirstTime=true;
 						startTasksActivity();
-
 					}
 					else {
 						ParseQuery<ParseUser> query = ParseUser.getQuery();
@@ -118,31 +122,7 @@ public class LoginActivity extends Activity {
 					}
 				}
 			});
-			/*if(controller.isListEmpty())
-			{
-
-				/*try {
-					User u = controller.AddUser(userName, pass, phoneNumber,1);
-					controller.setLogedIn(u);
-					startMembersActivity();
-					return;
-				}
-				catch(Exception e)
-				{}
-			}
-			else {
-				User u = controller.GetUser(userName, pass, phoneNumber);
-				//the user is exists, set the IsLogin flag to true.
-				if (u !=null) {
-					controller.setLogedIn(u);
-					startMembersActivity();
-					return;
-				}
-				//log in was failed.
-				Toast.makeText(this, "User name or password or phone number is incorrect", Toast.LENGTH_LONG).show();
-			}*/
     	}
-		
 	}
 
 	@Override
@@ -169,7 +149,13 @@ public class LoginActivity extends Activity {
 						controller.AddUser(newUser, new SignUpCallback() {
 							@Override
 							public void done(ParseException e) {
-								startTasksActivity();
+								if(e ==null){
+									isFirstTime=true;
+									startTasksActivity();
+								}
+
+								else
+									Toast.makeText(getApplicationContext(),"Unable to save data in server! please reInstall the app",Toast.LENGTH_LONG);
 							}
 						});
 						//controller.setLogedIn(u);
@@ -183,15 +169,19 @@ public class LoginActivity extends Activity {
 	}
     public void startTasksActivity()
     {
-
 		sharedpreferences = getSharedPreferences(LoginActivity.MyPREFERENCES, Context.MODE_PRIVATE);
 		int refreshTimer=sharedpreferences.getInt("autoRefresh", 0);
+		//Set default refresh timer to 30 Minutes
 		if(refreshTimer==0) {
 			SharedPreferences.Editor editor = sharedpreferences.edit();
 			editor.putInt("autoRefresh", 30);
 			editor.apply();
 		}
 		Intent i = new Intent(getApplicationContext(), TasksActivity.class);
+		if(isFirstTime) {
+			i.putExtra("first", "yes");
+			isFirstTime=false;
+		}
 		startActivity(i);
 		finish();
 		//Explicit intent.

@@ -1,10 +1,13 @@
 package com.lauraeyal.taskmanager.activities;
 
 import android.app.ProgressDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -20,14 +23,18 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.lauraeyal.taskmanager.R;
+import com.lauraeyal.taskmanager.bl.TimeService;
 import com.parse.ParseUser;
+
+import java.sql.Time;
+
 public class SettingsActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener{
 
-    //UsersController controller;
+    boolean mBounded;
+    TimeService tService;
     NavigationView navigationView;
     DrawerLayout drawer;
-    ProgressDialog progressDialog;
     Toolbar toolbar;
     Spinner timeSpinner;
     SharedPreferences sharedpreferences;
@@ -63,20 +70,54 @@ public class SettingsActivity extends AppCompatActivity
         int refreshTimer=sharedpreferences.getInt("autoRefresh", 0);
         switch(refreshTimer)
         {
-            case 5:
+            case 1:
                 timeSpinner.setSelection(0);
                 break;
-            case 10:
+            case 5:
                 timeSpinner.setSelection(1);
                 break;
-            case 30:
+            case 10:
                 timeSpinner.setSelection(2);
                 break;
-            case 60:
+            case 30:
                 timeSpinner.setSelection(3);
+                break;
+            case 60:
+                timeSpinner.setSelection(4);
                 break;
         }
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Intent mIntent = new Intent(this, TimeService.class);
+        bindService(mIntent, mConnection, BIND_AUTO_CREATE);
+    };
+
+    ServiceConnection mConnection = new ServiceConnection() {
+
+        public void onServiceDisconnected(ComponentName name) {
+            mBounded = false;
+            tService = null;
+        }
+
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mBounded = true;
+            TimeService.LocalBinder mLocalBinder = (TimeService.LocalBinder)service;
+            tService = mLocalBinder.getServerInstance();
+        }
+    };
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if(mBounded) {
+            unbindService(mConnection);
+            mBounded = false;
+        }
+    };
+
 
     @Override
     public void onBackPressed() {
@@ -121,9 +162,6 @@ public class SettingsActivity extends AppCompatActivity
             finish();
         }
         else if (id == R.id.nav_settings) {
-            Intent settingActivity = new Intent(this, SettingsActivity.class);
-            startActivity(settingActivity);
-            finish();
         }
         else if (id == R.id.nav_logout) {
             ParseUser.logOut();
@@ -143,9 +181,6 @@ public class SettingsActivity extends AppCompatActivity
             finish();
         }
         else if (id == R.id.member_nav_settings) {
-            Intent settingActivity = new Intent(this, SettingsActivity.class);
-            startActivity(settingActivity);
-            finish();
         }
         else if (id == R.id.member_nav_logout) {
             ParseUser.logOut();
@@ -173,12 +208,21 @@ public class SettingsActivity extends AppCompatActivity
             default:
                 String time =  String.valueOf(timeSpinner.getSelectedItem().toString());
                 sharedpreferences = getSharedPreferences(LoginActivity.MyPREFERENCES, Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedpreferences.edit();
-                editor.putInt("autoRefresh", Integer.parseInt(time));
-                editor.apply();
-                //TODO Update auto refresh timer
-                Toast toast = Toast.makeText(getApplicationContext(),"Auto refresh timer Updated Successfully!",Toast.LENGTH_LONG);
-                toast.show();
+                int refreshTimer=sharedpreferences.getInt("autoRefresh", 0);
+                if(Integer.parseInt(time) != refreshTimer) {
+                    SharedPreferences.Editor editor = sharedpreferences.edit();
+                    editor.putInt("autoRefresh", Integer.parseInt(time));
+                    editor.apply();
+                    tService.SetTimerInterval();
+                    //TODO Update auto refresh timer
+                    Toast toast = Toast.makeText(getApplicationContext(), "Auto refresh timer Updated Successfully!", Toast.LENGTH_LONG);
+                    toast.show();
+                }
+                else
+                {
+                    Toast toast = Toast.makeText(getApplicationContext(), "Time is already set to "+time +" Minutes", Toast.LENGTH_LONG);
+                    toast.show();
+                }
                 return true;
             //return super.onOptionsItemSelected(item);
         }

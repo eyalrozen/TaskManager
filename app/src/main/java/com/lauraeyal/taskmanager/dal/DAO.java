@@ -15,6 +15,7 @@ import com.lauraeyal.taskmanager.common.*;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
+import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -228,7 +229,7 @@ public class DAO implements IDataAcces
 
             ParseQuery<ParseObject> query = ParseQuery.getQuery("Tasks");
             query.whereEqualTo("Description",task.GetDescription());
-            query.whereEqualTo("TeamMember",task.get_teamMemebr());
+            query.whereEqualTo("TeamMember", task.get_teamMemebr());
             query.findInBackground(callback);
         }
 
@@ -310,10 +311,11 @@ public class DAO implements IDataAcces
                             Parsetasks.put("TeamMember", user.getUsername());
                             Parsetasks.put("isApprovle", task.GetTaskApprovle());
                             Parsetasks.put("Status", task.GetTaskStatus());
-                            Parsetasks.saveInBackground( callback );
+                            Parsetasks.saveEventually(callback);
                         }
                     } else {
-                        // Something went wrong.
+                        Toast err = Toast.makeText(context,"Unable to connect server",Toast.LENGTH_LONG);
+                        err.show();// Something went wrong.
                     }
                 }
             });
@@ -335,7 +337,7 @@ public class DAO implements IDataAcces
         f.setCategory(cursor.getString(cursor
                 .getColumnIndex(TaskDBContract.TaskEntry.COLUMN_TASK_CATEGORY)));
         f.SetDueTime(cursor.getString(cursor
-                    .getColumnIndex(TaskDBContract.TaskEntry.COLUMN_TASK_DUETIME)));
+                .getColumnIndex(TaskDBContract.TaskEntry.COLUMN_TASK_DUETIME)));
         f.SetLocation(cursor.getString(cursor
                 .getColumnIndex(TaskDBContract.TaskEntry.COLUMN_TASK_LOCATION)));
         f.SetPriority(cursor.getString(cursor
@@ -408,7 +410,7 @@ public class DAO implements IDataAcces
             user.put("Phone", usr.getPhoneNumber());
             user.put("MailSend", usr.getMailSend());
             user.put("Team" , usr.getTeamName());
-            user.put("isAdmin" ,usr.getPermission());
+            user.put("isAdmin", usr.getPermission());
             user.signUpInBackground(callback);
             return newUser;
         }finally {
@@ -467,6 +469,8 @@ public class DAO implements IDataAcces
                     }
                 }
                 else {
+                    Toast err = Toast.makeText(context,"Unable to get data from server",Toast.LENGTH_LONG);
+                    err.show();
                     // Something went wrong.
                 }
             }

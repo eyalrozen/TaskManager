@@ -26,6 +26,7 @@
 
     <string name="time_promt">Select Time</string>
     <string-array name="time_arrays">
+        <item>1</item>
         <item>5</item>
         <item>10</item>
         <item>30</item>

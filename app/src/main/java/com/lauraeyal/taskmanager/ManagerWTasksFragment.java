@@ -16,6 +16,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.lauraeyal.taskmanager.activities.TasksActivity;
 import com.lauraeyal.taskmanager.bl.TaskAdapter;
@@ -232,6 +233,13 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
     public void StartProgressDialog()
     {
         progressDialog.show();
+    }
+
+    public void ParseError()
+    {
+        progressDialog.dismiss();
+        Toast err = Toast.makeText(getContext(),"Unable to get data from server",Toast.LENGTH_LONG);
+        err.show();
     }
     @Override
     public void DataSourceChanged() {

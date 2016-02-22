@@ -49,6 +49,15 @@ public class TaskController implements ITaskController {
         dao.SyncParseTaskList(ParseTaskList);
     }
 
+    public String GetTeamName()
+    {
+        return dao.GetTeamName();
+    }
+
+    public void SyncTeamName()
+    {
+        dao.SyncTeamName();
+    }
     public List<TaskItem> GetWaitingTaskList() {
         try{
             List<TaskItem> list = dao.GetWaitingTaskList();

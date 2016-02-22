@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.lauraeyal.taskmanager" >
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+
+    <!--
+      IMPORTANT: Change "com.parse.starter.permission.C2D_MESSAGE" in the lines below
+      to match your app's package name + ".permission.C2D_MESSAGE".
+    -->
+    <permission android:protectionLevel="signature"
+        android:name="com.lauraeyal.taskmanager.permission.C2D_MESSAGE" />
+    <uses-permission android:name="com.lauraeyal.taskmanager.permission.C2D_MESSAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
@@ -20,15 +32,17 @@
             android:name="com.parse.CLIENT_KEY"
             android:value="fCD5m26rXryOjbRvwTajeqVU8ErkbbFXywxeog3V" />
         <activity
-            android:name=".activities.LoginActivity"
-            android:label="Login"
-            android:theme="@style/AppTheme.NoActionBar" >
+            android:name=".activities.SplashScreen"
+            android:label="Task Manager"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".activities.LoginActivity" android:label="Login"/>
         <activity android:name=".activities.UsersActivity" android:label="Team Members"/>
         <activity android:name=".activities.PhoneContactsActivity" android:label="Add Member"/>
         <activity android:name=".activities.TasksActivity" android:label="Team Tasks"/>
@@ -36,6 +50,7 @@
         <activity android:name=".activities.AddTeamActivity" android:label="Add Team" />
         <activity android:name=".activities.SettingsActivity" android:label="Settings" />
         <activity android:name=".activities.AboutActivity" android:label="About" />
+        <service android:name=".bl.TimeService"/>
         <receiver
              android:name=".NotificationBroadCastReceiver"
              android:exported="false" >
@@ -46,6 +61,23 @@
          </receiver>
         <meta-data android:name="com.parse.push.notification_icon"
         android:resource="@android:drawable/ic_dialog_info"/>
+        <service android:name="com.parse.PushService" />
+        <receiver android:name="com.parse.ParsePushBroadcastReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.parse.push.intent.RECEIVE" />
+                <action android:name="com.parse.push.intent.DELETE" />
+                <action android:name="com.parse.push.intent.OPEN" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name="com.parse.GcmBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+                <category android:name="com.lauraeyal.taskmanager" />
+            </intent-filter>
+        </receiver>
     </application>
 
 

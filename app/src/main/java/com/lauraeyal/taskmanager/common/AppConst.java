@@ -10,4 +10,5 @@ public class AppConst {
 	public static final String PARSE_APPLICATION_ID = "0ETJ4G37sIxKJQsJRdU8dVitjccc0EJ4q9WG0dmL";
 	public static final String PARSE_CLIENT_KEY = "fCD5m26rXryOjbRvwTajeqVU8ErkbbFXywxeog3V";
 	public static final int NOTIFICATION_ID = 100;
+
 }

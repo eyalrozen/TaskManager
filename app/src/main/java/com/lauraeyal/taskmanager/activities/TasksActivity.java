@@ -2,8 +2,11 @@ package com.lauraeyal.taskmanager.activities;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.opengl.Visibility;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -12,6 +15,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
@@ -26,6 +30,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.lauraeyal.taskmanager.ManagerWTasksFragment;
 import com.lauraeyal.taskmanager.MyItemClickListener;
@@ -34,6 +39,7 @@ import com.lauraeyal.taskmanager.R;
 import com.lauraeyal.taskmanager.ManagerATasksFragment;
 import com.lauraeyal.taskmanager.bl.TaskAdapter;
 import com.lauraeyal.taskmanager.bl.TaskController;
+import com.lauraeyal.taskmanager.bl.TimeService;
 import com.lauraeyal.taskmanager.common.OnDataSourceChangeListener;
 import com.lauraeyal.taskmanager.common.TaskItem;
 import com.lauraeyal.taskmanager.common.User;
@@ -62,17 +68,24 @@ public class TasksActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ParseInstallation.getCurrentInstallation().saveInBackground();
+        startService(new Intent(this, TimeService.class));
+        controller = new TaskController(this);
         if ((int) ParseUser.getCurrentUser().get("isAdmin") == 0) {
             setContentView(R.layout.activity_tasks_member);
             navigationView = (NavigationView) findViewById(R.id.membernav_view);
             navigationView.setNavigationItemSelectedListener(this);
+            Bundle extras = getIntent().getExtras();
+            if (extras != null) {
+                Toast welcomeToast = Toast.makeText(getApplicationContext(), "You have been added to Team: "+controller.GetTeamName(), Toast.LENGTH_LONG);
+                welcomeToast.show();
+            }
         }
         else {
             setContentView(R.layout.activity_tasks);
             navigationView = (NavigationView) findViewById(R.id.nav_view);
             navigationView.setNavigationItemSelectedListener(this);
         }
-        controller = new TaskController(this);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         progressDialog = new ProgressDialog(getApplicationContext());
@@ -137,7 +150,11 @@ public class TasksActivity extends AppCompatActivity
                     controller.SyncParseTaskList(UpdateList);
                     frag1.OnRefreshClicked();
                     frag2.OnRefreshClicked();
-
+                }
+                else
+                {
+                    frag1.ParseError();
+                    frag2.ParseError();
                 }
             }
         });
@@ -263,7 +280,29 @@ public class TasksActivity extends AppCompatActivity
         return true;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
 
+        // Register mMessageReceiver to receive messages.
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
+                new IntentFilter("my-event"));
+    }
+    // handler for received Intents for the "my-event" event
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Extract data included in the Intent
+            onRefreshClicked();
+        }
+    };
+
+    @Override
+    protected void onPause() {
+        // Unregister since the activity is not visible
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+        super.onPause();
+    }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {
         private final List<Fragment> mFragmentList = new ArrayList<>();
@@ -293,5 +332,4 @@ public class TasksActivity extends AppCompatActivity
             return mFragmentTitleList.get(position);
         }
     }
-
 }

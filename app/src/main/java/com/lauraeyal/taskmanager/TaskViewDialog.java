@@ -1,6 +1,7 @@
 package com.lauraeyal.taskmanager;
 
 import android.app.Activity;
+import android.app.Application;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.ProgressDialog;
@@ -24,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.lauraeyal.taskmanager.activities.TasksActivity;
 import com.lauraeyal.taskmanager.activities.addtaskActivity;
@@ -170,6 +172,11 @@ public class TaskViewDialog extends DialogFragment {
                                     }
                                 });
                             }
+                        else
+                        {
+                            Toast err = Toast.makeText(getContext(),"Unable to get data from server",Toast.LENGTH_LONG);
+                            err.show();
+                        }
                     }
                 });
             }
@@ -204,7 +211,7 @@ public class TaskViewDialog extends DialogFragment {
                 // Create a column named "ImageFile" and insert the image
                 imgupload.put("ImageFile", file);
                 // Create the class and the columns
-                imgupload.saveInBackground();
+                imgupload.saveEventually();
                 onUpdateClicked();
             }
         }
@@ -232,7 +239,11 @@ public class TaskViewDialog extends DialogFragment {
                             }
                         });
                     }
-
+                }
+                else
+                {
+                    Toast err = Toast.makeText(getContext(),"Unable to get update data in server",Toast.LENGTH_LONG);
+                    err.show();
                 }
             }
         },id,Description,TeamMember,"Task_status",String.valueOf(statusSpinner.getSelectedItem()));

@@ -18,6 +18,7 @@ public interface ITaskController
 {
     void GetParseTaskList(FindCallback<ParseObject> callback);
     void SyncParseTaskList(List<TaskItem> ParseTaskList);
+    public String GetTeamName();
     List<TaskItem> GetAllTaskList();
     List<TaskItem> GetWaitingTaskList();
     List<TaskItem> SortAllTasksByStatus();
