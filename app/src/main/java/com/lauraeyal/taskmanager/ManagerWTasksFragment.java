@@ -6,6 +6,7 @@ import android.app.DialogFragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.opengl.Visibility;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -16,6 +17,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.lauraeyal.taskmanager.activities.TasksActivity;
@@ -45,6 +48,7 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
     private TaskController controller;
     List<TaskItem> ParseTaskList = new ArrayList<TaskItem>();
     ProgressDialog progressDialog;
+    TextView noTasksText;
     public ManagerWTasksFragment() {
         // Required empty public constructor
     }
@@ -62,6 +66,7 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.my_recycle_view);
         mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_refresh_layout);
         //create the controller.
+        noTasksText = (TextView) rootView.findViewById(R.id.notask);
         Context context = getActivity();
         progressDialog = new ProgressDialog(context);
         progressDialog.setIndeterminate(true);
@@ -97,6 +102,11 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
                     mAdapter = new TaskAdapter(controller.GetWaitingTaskList());
                     ContinueInit();
                 }
+                else
+                {
+                    mAdapter = new TaskAdapter(controller.GetWaitingTaskList());
+                    ContinueInit();
+                }
             }
         });
 
@@ -112,6 +122,10 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
     }
 
     void ContinueInit (){
+        if(controller.GetWaitingTaskList().size()>0)
+            noTasksText.setVisibility(View.GONE);
+        else
+            noTasksText.setVisibility(View.VISIBLE);
         progressDialog.dismiss();
         mRecyclerView.setAdapter(mAdapter);
         mAdapter.setOnItemClickListener(this);
@@ -215,6 +229,10 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
     public void OnRefreshClicked()
     {
         controller.invokeDataSourceChanged();
+        if(controller.GetWaitingTaskList().size()>0)
+            noTasksText.setVisibility(View.GONE);
+        else
+            noTasksText.setVisibility(View.VISIBLE);
         progressDialog.dismiss();
     }
 

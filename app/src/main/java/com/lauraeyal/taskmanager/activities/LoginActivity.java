@@ -65,12 +65,6 @@ public class LoginActivity extends Activity {
         controller = new UsersController(this);
 		controller.SyncTeamName();
         //ask the controller if the user is logged in.
-       /* if(controller.isLoggedIn())
-        {
-        	//In case the user is logged in start the main activity.
-			startMembersActivity();
-        	return;
-        }*/
         //get the useName and password edit text view 
         userNameEditText = (EditText) findViewById(R.id.editTextUserName);
         passwordEditText = (EditText) findViewById(R.id.editTextPassword);

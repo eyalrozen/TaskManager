@@ -118,7 +118,6 @@ public class TasksActivity extends AppCompatActivity
             public void onClick(View view) {
                 Intent nextScreen = new Intent(getApplicationContext(), addtaskActivity.class);
                 startActivity(nextScreen);
-                finish();
             }
         });
     }

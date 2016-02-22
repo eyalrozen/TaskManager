@@ -34,6 +34,7 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseUser;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -53,14 +54,12 @@ public class UsersActivity extends AppCompatActivity implements
         mRecyclerView = (RecyclerView) findViewById(R.id.my_recycle_view);
         //create the controller.
         controller = new UsersController(this);
+        controller.SyncTeamName();
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
         controller.registerOnDataSourceChanged(this);
         mRecyclerView.setHasFixedSize(true);
         Bundle extras = getIntent().getExtras();
-        if(extras !=null){
-            String username = extras.getString("userName");
-        }
         progressDialog = new ProgressDialog(UsersActivity.this);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Loading Team Members...");
@@ -98,23 +97,28 @@ public class UsersActivity extends AppCompatActivity implements
                 controller.SyncTeamName();
                 Intent ContactListIntent = new Intent(v.getContext(), PhoneContactsActivity.class);
                 startActivity(ContactListIntent);
-                finish();
             }
         });
 
         doneBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent email = new Intent(Intent.ACTION_SEND);
+                Intent email = new Intent(Intent.ACTION_SEND_MULTIPLE);
                 List<User> allUsers = controller.GetUsersList();
+                ArrayList<String> newUsers = new ArrayList<String>();
                 for (User usr:allUsers) {
                     if(usr.getMailSend()==0) {
+                        newUsers.add(usr.getUserName());
                         email.putExtra(Intent.EXTRA_BCC, new String[]{usr.getUserName()});
                         usr.setMailSent(1);
                     }
                 }
-                String subject = "TestMail";
-                String message = "This is a test";
+                if(newUsers.size()>0)
+                    email.putStringArrayListExtra(Intent.EXTRA_BCC, newUsers);
+                String subject = "Invitation to Join "+ controller.GetTeamName()+ " team";
+                String message = "Hi\n" +
+                        "\tYou have been invited to be a team member in an "+ controller.GetTeamName() +" Team created by " + ParseUser.getCurrentUser().getUsername()+ ".\n" +
+                        "\tUse this link to download and install the App from Google Play.";
                 email.putExtra(Intent.EXTRA_SUBJECT, subject);
                 email.putExtra(Intent.EXTRA_TEXT, message);
 
@@ -135,6 +139,9 @@ public class UsersActivity extends AppCompatActivity implements
     }
 
     public void onItemClick(View view, int postion) {
+
+    }
+    public void onItemLongClick(View view, int postion) {
         User usr = controller.GetUsersList().get(postion);
 
         if(usr != null){
@@ -161,12 +168,6 @@ public class UsersActivity extends AppCompatActivity implements
             alertDialog.show();
 
             //Snackbar.make(view,"Short Click "+ usr.getUserName(),Snackbar.LENGTH_LONG).setAction("action",null).show();
-        }
-    }
-    public void onItemLongClick(View view, int postion) {
-        User usr = controller.GetUsersList().get(postion);
-        if(usr != null) {
-            Snackbar.make(view, "Long click " + usr.getUserName(), Snackbar.LENGTH_LONG).setAction("action", null).show();
         }
     }
 

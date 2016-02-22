@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.lauraeyal.taskmanager.activities.TasksActivity;
@@ -40,6 +41,7 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
     private TaskAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private TaskController controller;
+    TextView noTasksText;
     SwipeRefreshLayout mSwipeRefreshLayout;
     List<TaskItem> ParseTaskList = new ArrayList<TaskItem>();
     public ProgressDialog progressDialog;
@@ -62,6 +64,7 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
         mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_refresh_layout);
         progressDialog = new ProgressDialog(context);
         progressDialog.setIndeterminate(true);
+        noTasksText = (TextView) rootView.findViewById(R.id.notask);
         progressDialog.setMessage("Loading Tasks...");
         controller = new TaskController(getActivity());
         // use this setting to improve performance if you know that changes
@@ -111,6 +114,10 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
     }
 
     void ContinueInit (){
+        if(controller.GetAllTaskList().size()>0)
+            noTasksText.setVisibility(View.GONE);
+        else
+            noTasksText.setVisibility(View.VISIBLE);
         progressDialog.dismiss();
         mRecyclerView.setAdapter(mAdapter);
         mAdapter.setOnItemClickListener(this);
@@ -120,6 +127,10 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
     public void OnRefreshClicked()
     {
         controller.invokeDataSourceChanged();
+        if(controller.GetAllTaskList().size()>0)
+            noTasksText.setVisibility(View.GONE);
+        else
+            noTasksText.setVisibility(View.VISIBLE);
         progressDialog.dismiss();
     }
     public void OnSortByDueClicked()

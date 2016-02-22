@@ -24,4 +24,14 @@
 
     </android.support.v4.widget.SwipeRefreshLayout>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="No Waiting task"
+        android:id="@+id/notask"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="48dp" />
+
 </RelativeLayout>

@@ -225,7 +225,6 @@ public class PhoneContactsActivity extends Activity {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
-                    Log.e("search", "here---------------- listener");
                     selectContacts.get(i).setCheckedBox(true);
                     SelectContact data = selectContacts.get(i);
                 }

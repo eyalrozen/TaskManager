@@ -174,8 +174,8 @@ public class TaskViewDialog extends DialogFragment {
                             }
                         else
                         {
-                            Toast err = Toast.makeText(getContext(),"Unable to get data from server",Toast.LENGTH_LONG);
-                            err.show();
+                           /* Toast err = Toast.makeText(,"Unable to get data from server",Toast.LENGTH_LONG);
+                            err.show();*/
                         }
                     }
                 });
@@ -193,11 +193,19 @@ public class TaskViewDialog extends DialogFragment {
                 bmp.compress(Bitmap.CompressFormat.PNG, 100, stream);
                 byte[] byteArray = stream.toByteArray();
                 // Upload picture to Parse
-                ParseFile file = new ParseFile("Image.png", byteArray);
+                final ParseFile file = new ParseFile("Image.png", byteArray);
                 file.saveInBackground(new SaveCallback() {
                     public void done(ParseException e) {
                         // Handle success or failure here ...
                         Log.d("parse", "Done uploadFIle");
+                        ParseObject imgupload = new ParseObject("ImageUpload");
+                        // Create a column named "ImageName" and set the string
+                        imgupload.put("ImageName", TeamMember + Description);
+                        // Create a column named "ImageFile" and insert the image
+                        imgupload.put("ImageFile", file);
+                        // Create the class and the columns
+                        imgupload.saveEventually();
+                        onUpdateClicked();
                     }
                 }, new ProgressCallback() {
                     public void done(Integer percentDone) {
@@ -205,14 +213,7 @@ public class TaskViewDialog extends DialogFragment {
                         progressBar.setProgress(percentDone);
                     }
                 });
-                ParseObject imgupload = new ParseObject("ImageUpload");
-                // Create a column named "ImageName" and set the string
-                imgupload.put("ImageName", TeamMember+Description);
-                // Create a column named "ImageFile" and insert the image
-                imgupload.put("ImageFile", file);
-                // Create the class and the columns
-                imgupload.saveEventually();
-                onUpdateClicked();
+
             }
         }
     }
@@ -242,8 +243,8 @@ public class TaskViewDialog extends DialogFragment {
                 }
                 else
                 {
-                    Toast err = Toast.makeText(getContext(),"Unable to get update data in server",Toast.LENGTH_LONG);
-                    err.show();
+                   /* Toast err = Toast.makeText(getContext(),"Unable to get update data in server",Toast.LENGTH_LONG);
+                    err.show();*/
                 }
             }
         },id,Description,TeamMember,"Task_status",String.valueOf(statusSpinner.getSelectedItem()));
