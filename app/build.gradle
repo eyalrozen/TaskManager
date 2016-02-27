@@ -3,6 +3,9 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
+    dexOptions {
+        javaMaxHeapSize "4g"
+    }
 
     defaultConfig {
         applicationId "com.lauraeyal.taskmanager"
@@ -10,6 +13,7 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -28,5 +32,7 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:23.1.0'
     compile 'com.parse.bolts:bolts-android:1.+'
     compile 'com.parse:parse-android:1.+'
-
+    compile 'com.android.support:multidex:1.0.0'
+    compile files('libs/App42_ANDROID_SDK_3.5.jar')
+    compile 'com.google.android.gms:play-services:8.4.0'
 }

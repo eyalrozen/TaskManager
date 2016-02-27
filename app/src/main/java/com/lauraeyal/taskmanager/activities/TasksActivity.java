@@ -1,24 +1,19 @@
 package com.lauraeyal.taskmanager.activities;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.opengl.Visibility;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -29,56 +24,73 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
-
 import com.lauraeyal.taskmanager.ManagerWTasksFragment;
-import com.lauraeyal.taskmanager.MyItemClickListener;
-import com.lauraeyal.taskmanager.MyItemLongClickListener;
 import com.lauraeyal.taskmanager.R;
 import com.lauraeyal.taskmanager.ManagerATasksFragment;
-import com.lauraeyal.taskmanager.bl.TaskAdapter;
 import com.lauraeyal.taskmanager.bl.TaskController;
 import com.lauraeyal.taskmanager.bl.TimeService;
-import com.lauraeyal.taskmanager.common.OnDataSourceChangeListener;
 import com.lauraeyal.taskmanager.common.TaskItem;
-import com.lauraeyal.taskmanager.common.User;
+import com.lauraeyal.taskmanager.pushNotification.App42GCMController;
+import com.lauraeyal.taskmanager.pushNotification.App42GCMService;
 import com.parse.FindCallback;
-import com.parse.Parse;
 import com.parse.ParseException;
-import com.parse.ParseInstallation;
 import com.parse.ParseObject;
-import com.parse.ParsePush;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
+import com.shephertz.app42.paas.sdk.android.App42API;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TasksActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener{
-
+        implements NavigationView.OnNavigationItemSelectedListener,  App42GCMController.App42GCMListener{
     private TaskController controller;
+    private static final String GoogleProjectNo = "219405474304";
     private TabLayout tabLayout;
     private ViewPager viewPager;
+    public static ArrayList<String> newTasksList;
     NavigationView navigationView;
     DrawerLayout drawer;
     ViewPagerAdapter adapter;
+    SharedPreferences sharedpreferences;
     ProgressDialog progressDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ParseInstallation.getCurrentInstallation().saveInBackground();
+        sharedpreferences = getSharedPreferences(LoginActivity.MyPREFERENCES, Context.MODE_PRIVATE);
         startService(new Intent(this, TimeService.class));
+        App42API.initialize(this, "153663557f7a68f62f95cfae71037944af5a4a38a08cb94da5610124596fa159", "6b2e6c13f4753b4c1c248c07373da4b82714957db2f69a4f3b6d728398da98d5");
+        App42API.setLoggedInUser(ParseUser.getCurrentUser().getUsername()) ;
+        newTasksList = new ArrayList<String>();
+        Bundle extras = getIntent().getExtras();
+        if(extras !=null)
+        {
+            String newTaskDescription = getIntent().getStringExtra("newTask");
+            String newTaskTMember = getIntent().getStringExtra("TeamMember");
+            App42GCMController.sendPushToUser(newTaskTMember,
+                    "You got new task:"+newTaskDescription, this);
+        }
+      /*  String newTaskDescription = intent.getStringExtra("newTask");
+        String newTaskTMember = intent.getStringExtra("TeamMember");
+        if(!newTaskDescription.equals(""))
+        {
+            App42GCMController.sendPushToUser(newTaskTMember,
+                    "You got new task:"+newTaskDescription, this);
+        }*/
         controller = new TaskController(this);
         if ((int) ParseUser.getCurrentUser().get("isAdmin") == 0) {
             setContentView(R.layout.activity_tasks_member);
             navigationView = (NavigationView) findViewById(R.id.membernav_view);
             navigationView.setNavigationItemSelectedListener(this);
-            Bundle extras = getIntent().getExtras();
-            if (extras != null) {
+            boolean firstTime = sharedpreferences.getBoolean("firstTime",true);
+            if (firstTime) {
                 Toast welcomeToast = Toast.makeText(getApplicationContext(), "You have been added to Team: "+controller.GetTeamName(), Toast.LENGTH_LONG);
                 welcomeToast.show();
+                SharedPreferences.Editor editor = sharedpreferences.edit();
+                editor.putBoolean("firstTime", false);
+                editor.apply();
             }
+
         }
         else {
             setContentView(R.layout.activity_tasks);
@@ -114,6 +126,7 @@ public class TasksActivity extends AppCompatActivity
             }
         });
         addTaskBtn.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View view) {
                 Intent nextScreen = new Intent(getApplicationContext(), addtaskActivity.class);
@@ -121,6 +134,7 @@ public class TasksActivity extends AppCompatActivity
             }
         });
     }
+
 
     public void onRefreshClicked()
     {
@@ -279,10 +293,27 @@ public class TasksActivity extends AppCompatActivity
         return true;
     }
 
+    public void onStart() {
+        super.onStart();
+        if (App42GCMController.isPlayServiceAvailable(this)) {
+            App42GCMController.getRegistrationId(TasksActivity.this,
+                    GoogleProjectNo, this);
+        } else {
+            Log.i("App42PushNotification",
+                    "No valid Google Play Services APK found.");
+        }
+    }
     @Override
     public void onResume() {
         super.onResume();
-
+        String message = getIntent().getStringExtra(
+                App42GCMService.ExtraMessage);
+        if (message != null)
+            Log.d("MainActivity-onResume", "Message Recieved :" + message);
+        IntentFilter filter = new IntentFilter(
+                App42GCMService.DisplayMessageAction);
+        filter.setPriority(2);
+        registerReceiver(mBroadcastReceiver, filter);
         // Register mMessageReceiver to receive messages.
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
                 new IntentFilter("my-event"));
@@ -296,11 +327,56 @@ public class TasksActivity extends AppCompatActivity
         }
     };
 
+    final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String message = intent
+                    .getStringExtra(App42GCMService.ExtraMessage);
+            /*Log.i("MainActivity-BroadcastReceiver", "Message Recieved " + " : "
+                    + message);*/
+        }
+    };
+
     @Override
     protected void onPause() {
         // Unregister since the activity is not visible
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
         super.onPause();
+    }
+
+    //Push notification methods
+    @Override
+    public void onError(String errorMsg) {
+
+    }
+
+    @Override
+    public void onGCMRegistrationId(String gcmRegId) {
+        App42GCMController.storeRegistrationId(this, gcmRegId);
+        if(!App42GCMController.isApp42Registerd(TasksActivity.this))
+            App42GCMController.registerOnApp42(App42API.getLoggedInUser(), gcmRegId, this);
+    }
+
+    @Override
+    public void onApp42Response(final String responseMessage) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d("push", responseMessage);
+            }
+        });
+
+    }
+
+    @Override
+    public void onRegisterApp42(final String responseMessage) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d("push", responseMessage);
+                App42GCMController.storeApp42Success(TasksActivity.this);
+            }
+        });
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {

@@ -6,12 +6,22 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-feature android:name="android.hardware.camera"
         android:required="true" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="com.lauraeyal.taskmanager.permission.C2D_MESSAGE" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <permission
+        android:name="com.lauraeyal.taskmanager.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/tm"
         android:label="Task Manager"
         android:supportsRtl="true"
+        android:name="android.support.multidex.MultiDexApplication"
         android:theme="@style/MyMaterialTheme" >
         <meta-data
             android:name="com.parse.APPLICATION_ID"
@@ -47,6 +57,23 @@
                  </action>
              </intent-filter>
          </receiver>
+        <receiver
+            android:name="com.lauraeyal.taskmanager.pushNotification.App42GCMReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+                <category android:name="com.lauraeyal.taskmanager" />
+            </intent-filter>
+        </receiver>
+        <service android:name="com.lauraeyal.taskmanager.pushNotification.App42GCMService" >
+        </service>
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+        <meta-data
+            android:name="onMessageOpen"
+            android:value="com.lauraeyal.taskmanager.activities.LoginActivity" />
     </application>
 
 

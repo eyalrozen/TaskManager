@@ -97,6 +97,8 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
                         f.SetTaskApprovle(task.getInt("isApprovle"));
                         f.SetTaskStatus(task.getString("Status"));
                         ParseTaskList.add(f);
+                        if(task.getBoolean("isNew"))
+                            TasksActivity.newTasksList.add(task.getString("Description"));
                     }
                     controller.SyncParseTaskList(ParseTaskList);
                     mAdapter = new TaskAdapter(controller.GetWaitingTaskList());

@@ -48,7 +48,7 @@ public class LoginActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
+		sharedpreferences = getSharedPreferences(LoginActivity.MyPREFERENCES, Context.MODE_PRIVATE);
 		try {
 			Parse.initialize(this);
 		}
@@ -88,7 +88,9 @@ public class LoginActivity extends Activity {
 					if (user != null) {
 						// Hooray! The user is logged in.
 						//user.signUpInBackground();
-						isFirstTime=true;
+						SharedPreferences.Editor editor = sharedpreferences.edit();
+						editor.putBoolean("firstTime", true);
+						editor.apply();
 						startTasksActivity();
 					}
 					else {
@@ -163,7 +165,7 @@ public class LoginActivity extends Activity {
 	}
     public void startTasksActivity()
     {
-		sharedpreferences = getSharedPreferences(LoginActivity.MyPREFERENCES, Context.MODE_PRIVATE);
+		;
 		int refreshTimer=sharedpreferences.getInt("autoRefresh", 0);
 		//Set default refresh timer to 30 Minutes
 		if(refreshTimer==0) {
@@ -172,10 +174,6 @@ public class LoginActivity extends Activity {
 			editor.apply();
 		}
 		Intent i = new Intent(getApplicationContext(), TasksActivity.class);
-		if(isFirstTime) {
-			i.putExtra("first", "yes");
-			isFirstTime=false;
-		}
 		startActivity(i);
 		finish();
 		//Explicit intent.

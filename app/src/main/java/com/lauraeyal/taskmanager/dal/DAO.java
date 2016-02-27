@@ -145,6 +145,7 @@ public class DAO implements IDataAcces
 
     public List<TaskItem> GetAllTaskList()
     {
+        ParseUser user = ParseUser.getCurrentUser();
         SQLiteDatabase database = null;
         List<TaskItem> tasks = new ArrayList<TaskItem>();
         try {
@@ -155,7 +156,13 @@ public class DAO implements IDataAcces
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
                 TaskItem f = cursorToTask(cursor);
+                if(user.getInt("isAdmin") == 0) {
+                    if (f.GetTaskApprovle() > -1)      // 2 = status done
+                        tasks.add(f);
+                }
+                else
                     tasks.add(f);
+
                 cursor.moveToNext();
             }
             // make sure to close the cursor
@@ -311,10 +318,11 @@ public class DAO implements IDataAcces
                             Parsetasks.put("TeamMember", user.getUsername());
                             Parsetasks.put("isApprovle", task.GetTaskApprovle());
                             Parsetasks.put("Status", task.GetTaskStatus());
+                            Parsetasks.put("isNew", true);
                             Parsetasks.saveEventually(callback);
                         }
                     } else {
-                        Toast err = Toast.makeText(context,"Unable to connect server",Toast.LENGTH_LONG);
+                        Toast err = Toast.makeText(context,"Unable to connect server to add task",Toast.LENGTH_LONG);
                         err.show();// Something went wrong.
                     }
                 }

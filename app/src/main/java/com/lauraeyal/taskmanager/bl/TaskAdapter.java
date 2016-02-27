@@ -2,16 +2,26 @@ package com.lauraeyal.taskmanager.bl;
 
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.lauraeyal.taskmanager.MyItemClickListener;
 import com.lauraeyal.taskmanager.MyItemLongClickListener;
 import com.lauraeyal.taskmanager.R;
+import com.lauraeyal.taskmanager.activities.TasksActivity;
 import com.lauraeyal.taskmanager.common.*;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -60,15 +70,47 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder>
         holder.taskStatus.setText(item.GetTaskStatus());
         holder.taskDate.setText(separated[0]);
         holder.taskeHour.setText(separated[1]);
-        if (item.GetTaskStatus().equals("Done"))
-            holder.itemView.findViewById(R.id.tcard_view_layout).setBackgroundColor(Color.GREEN);
+        //Search if its new task
         if(item.GetTaskApprovle() == -1) {
             holder.itemView.findViewById(R.id.tcard_view_layout).setBackgroundColor(Color.RED);
         }
-        else if(!item.GetTaskStatus().equals("Done") && item.GetTaskApprovle() >-1){
+        else if(TasksActivity.newTasksList.size()>0 && (int) ParseUser.getCurrentUser().get("isAdmin") == 0)
+        {
+            for (String desc: TasksActivity.newTasksList) {
+                if(item.GetDescription().equals(desc) && item.GetTaskApprovle() != -1)
+                {
+                    holder.itemView.findViewById(R.id.tcard_view_layout).setBackgroundColor(Color.YELLOW);
+
+                    ParseQuery<ParseObject> query = ParseQuery.getQuery("Tasks");
+                    query.whereEqualTo("Description",desc);
+                    query.whereEqualTo("TeamMember", item.get_teamMemebr());
+                    query.findInBackground(new FindCallback<ParseObject>() {
+                        @Override
+                        public void done(List<ParseObject> objects, ParseException e) {
+                            if(e==null)
+                            {
+                                for(ParseObject task:objects)
+                                {
+                                    task.put("isNew",false);
+                                    task.saveEventually(new SaveCallback() {
+                                        @Override
+                                        public void done(ParseException e) {
+                                           Log.d("parse", "error update parse");
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    });
+                    TasksActivity.newTasksList.remove(desc);
+                }
+            }
+        }
+        else if (item.GetTaskStatus().equals("Done"))
+            holder.itemView.findViewById(R.id.tcard_view_layout).setBackgroundColor(Color.GREEN);
+        else{
             holder.itemView.findViewById(R.id.tcard_view_layout).setBackgroundColor(Color.WHITE);
         }
-
     }
 
     public void UpdateDataSource(List<TaskItem> items)
@@ -121,6 +163,4 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder>
             return true;
         }
     }
-
-
 }

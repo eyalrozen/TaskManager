@@ -40,6 +40,7 @@ import com.lauraeyal.taskmanager.bl.TaskController;
 import com.lauraeyal.taskmanager.bl.UsersController;
 import com.lauraeyal.taskmanager.common.TaskItem;
 import com.lauraeyal.taskmanager.common.User;
+import com.lauraeyal.taskmanager.pushNotification.App42GCMController;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.ParsePush;
@@ -65,6 +66,7 @@ public class addtaskActivity extends AppCompatActivity implements DatePickerFrag
     RadioGroup rg;
     List<String> emailslist = new ArrayList<String>();
     private Spinner locationSpinner,categorySpinner,usersSpinner;
+
     ProgressDialog progressDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +106,8 @@ public class addtaskActivity extends AppCompatActivity implements DatePickerFrag
     public void MoveToTaskActivity()
     {
         Intent nextScreen = new Intent(getApplicationContext(), TasksActivity.class);
+        nextScreen.putExtra("newTask",descText.getText().toString());
+        nextScreen.putExtra("TeamMember",String.valueOf(usersSpinner.getSelectedItem()));
         startActivity(nextScreen);
         progressDialog.show();
         finish();
