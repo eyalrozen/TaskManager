@@ -29,6 +29,16 @@
             android:layout_height="wrap_content"
             android:id="@+id/my_recycle_view"
             android:layout_marginTop="50dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="No team members"
+            android:id="@+id/noMemberText"
+            android:layout_marginTop="25dp"
+            android:layout_alignTop="@+id/my_recycle_view"
+            android:layout_centerHorizontal="true" />
     </RelativeLayout>
     <android.support.design.widget.FloatingActionButton android:id="@+id/addUserBtn"
         android:layout_width="wrap_content" android:layout_height="wrap_content"

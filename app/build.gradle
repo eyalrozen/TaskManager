@@ -1,3 +1,4 @@
+apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.android.application'
 
 android {
@@ -35,4 +36,7 @@ dependencies {
     compile 'com.android.support:multidex:1.0.0'
     compile files('libs/App42_ANDROID_SDK_3.5.jar')
     compile 'com.google.android.gms:play-services:8.4.0'
+    compile 'com.google.android.gms:play-services-analytics:8.4.0'
+    compile 'me.leolin:ShortcutBadger:1.1.4@aar'
+
 }

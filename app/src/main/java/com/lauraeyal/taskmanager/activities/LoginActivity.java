@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.lauraeyal.taskmanager.R;
 import com.lauraeyal.taskmanager.bl.*;
 import com.lauraeyal.taskmanager.common.*;
+import com.lauraeyal.taskmanager.pushNotification.App42GCMReceiver;
 import com.parse.FindCallback;
 import com.parse.LogInCallback;
 import com.parse.Parse;
@@ -30,6 +31,8 @@ import com.parse.SignUpCallback;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import me.leolin.shortcutbadger.ShortcutBadger;
 
 //Start the app on LoginActivity
 public class LoginActivity extends Activity {
@@ -55,6 +58,7 @@ public class LoginActivity extends Activity {
 		catch (Exception e) {
 			Log.d("parse", "Parse Already init");
 		}
+		ShortcutBadger.removeCount(getApplicationContext());
 		progressDialog = new ProgressDialog(LoginActivity.this);
 		progressDialog.setIndeterminate(true);
 		progressDialog.setMessage("Authenticating...");
@@ -101,7 +105,8 @@ public class LoginActivity extends Activity {
 							public void done(List<ParseUser> userList, ParseException e) {
 								if (e == null) {
 									if (userList.size()>0) {
-										Log.d("Mylog", "Error in username/password!");
+										progressDialog.dismiss();
+										Toast.makeText(getApplicationContext(),"Not such user in system, please recheck your login details",Toast.LENGTH_LONG).show();
 									}
 									else { // Should be the admin login 1st time
 
@@ -111,7 +116,7 @@ public class LoginActivity extends Activity {
 								}
 								else { // Should be the admin login 1st time
 									progressDialog.dismiss();
-									Toast.makeText(getApplicationContext(),"Unable to get data from server!",Toast.LENGTH_LONG);
+									Toast.makeText(getApplicationContext(),"Unable to get data from server!",Toast.LENGTH_LONG).show();
 								}
 							}
 						});

@@ -33,7 +33,6 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.lauraeyal.taskmanager.DatePickerFragment;
-import com.lauraeyal.taskmanager.NotificationBroadCastReceiver;
 import com.lauraeyal.taskmanager.R;
 import com.lauraeyal.taskmanager.TimePickerFragment;
 import com.lauraeyal.taskmanager.bl.TaskController;

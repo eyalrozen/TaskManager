@@ -3,6 +3,7 @@ package com.lauraeyal.taskmanager.dal;
 import com.lauraeyal.taskmanager.common.*;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
+import com.parse.LogInCallback;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
@@ -18,6 +19,7 @@ public interface IDataAcces {
     void AddUserFromParse(User usr);
     void SyncParseUsers(FindCallback<ParseUser> callback);
     void UpdateUsersTable(List<User> updateUsersList);
+    void UpdateUserField(String fieldName,int numVal,String strVal,int userID);
     List<User> GetUserList();
     String GetTeamName();
     void SyncTeamName();
@@ -25,9 +27,10 @@ public interface IDataAcces {
     void SyncParseTaskList(List<TaskItem> parseTaskList);
     List<TaskItem> GetAllTaskList();
     List<TaskItem> GetWaitingTaskList();
-    void RemoveTask(TaskItem task);
+    void RemoveTask(FindCallback<ParseObject> callback,TaskItem task);
     void UpdateTask( FindCallback<ParseObject> callback , TaskItem task,String column,int updatedValue);
     void UpdateTask(FindCallback<ParseObject> callback , int taskID,String Description,String teamMember,String column,String UpdatedValue);
     TaskItem AddTask(TaskItem task,SaveCallback callback);
+    public void DeleteUser(String userMail,LogInCallback callback);
 
 }

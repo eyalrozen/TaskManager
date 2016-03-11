@@ -175,7 +175,7 @@ public class App42GCMService extends IntentService {
 		PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
 				notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(
-				this).setSmallIcon(R.drawable.common_google_signin_btn_text_light_normal)
+				this).setSmallIcon(R.drawable.logo)
 				.setContentTitle(title)
 				.setStyle(new NotificationCompat.BigTextStyle().bigText(msg))
 				.setContentText(msg).setWhen(when).setNumber(++msgCount)

@@ -9,18 +9,22 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+import com.lauraeyal.taskmanager.AnalyticsApplication;
 import com.lauraeyal.taskmanager.R;
 
 public class SplashScreen extends Activity {
 
     // Splash screen timer
     private static int SPLASH_TIME_OUT = 3000;
-
+    private Tracker mTracker;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-
+        AnalyticsApplication application = (AnalyticsApplication) getApplication();
+        mTracker = application.getDefaultTracker();
         new Handler().postDelayed(new Runnable() {
 
             /*
@@ -41,4 +45,11 @@ public class SplashScreen extends Activity {
         }, SPLASH_TIME_OUT);
     }
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mTracker.setScreenName("Splash");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+    }
 }

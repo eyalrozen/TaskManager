@@ -1,12 +1,17 @@
 package com.lauraeyal.taskmanager.common;
 
 public class User {
+	private int id;
 	private String userName;
 	private String password;
 	private String phoneNumber;
 	private int isMailSent;
 	private int isAdmin;
 	private String teamName;
+
+	public int getId() {return id;}
+
+	public void setId(int _id) {id =_id;}
 
 	public String getUserName() {
 		return userName;

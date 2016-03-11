@@ -1,19 +1,13 @@
 package com.lauraeyal.taskmanager;
 
 import android.app.Activity;
-import android.app.Application;
-import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.opengl.Visibility;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,13 +21,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.gcm.Task;
 import com.lauraeyal.taskmanager.activities.TasksActivity;
-import com.lauraeyal.taskmanager.activities.addtaskActivity;
 import com.lauraeyal.taskmanager.bl.TaskController;
 import com.parse.FindCallback;
-import com.parse.GetCallback;
 import com.parse.GetDataCallback;
-import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
@@ -47,7 +39,7 @@ import java.util.List;
 /**
  * Created by Eyal on 1/16/2016.
  */
-public class TaskViewDialog extends DialogFragment {
+public class TaskViewDialog extends DialogFragment  {
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 1888;
     private TextView descText ,ctgryText,timeText,memberText,locationText,statusText,priorityText,ApprovleText;
     String Description,DueTime,Category,TeamMember,Location,Status,Priority;
@@ -69,7 +61,6 @@ public class TaskViewDialog extends DialogFragment {
         id = getArguments().getInt("ID");
         cameraBtn = (ImageButton)rootView.findViewById(R.id.cameraBtn);
         downloadBtn = (Button)rootView.findViewById(R.id.downloadBtn);
-        progressBar =(ProgressBar)rootView.findViewById(R.id.uploadprogressBar);
         cameraBtn.setVisibility(rootView.INVISIBLE);
         progressBar.setVisibility(rootView.INVISIBLE);
         downloadBtn.setVisibility(rootView.INVISIBLE);
@@ -129,9 +120,11 @@ public class TaskViewDialog extends DialogFragment {
         cameraBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                getDialog().dismiss();
+                //((TasksActivity)getActivity()).onCameraClicked(id, TeamMember,Description);
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(intent,
-                        CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
+
+                getActivity().startActivityForResult(intent,CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
             }
         });
         downloadBtn.setOnClickListener(new View.OnClickListener() {
@@ -185,6 +178,8 @@ public class TaskViewDialog extends DialogFragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //super.onActivityResult(requestCode, resultCode, data);
+
         if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
                 progressBar.setVisibility(View.VISIBLE);
@@ -196,6 +191,7 @@ public class TaskViewDialog extends DialogFragment {
                 final ParseFile file = new ParseFile("Image.png", byteArray);
                 file.saveInBackground(new SaveCallback() {
                     public void done(ParseException e) {
+                        if(e==null){
                         // Handle success or failure here ...
                         Log.d("parse", "Done uploadFIle");
                         ParseObject imgupload = new ParseObject("ImageUpload");
@@ -204,9 +200,14 @@ public class TaskViewDialog extends DialogFragment {
                         // Create a column named "ImageFile" and insert the image
                         imgupload.put("ImageFile", file);
                         // Create the class and the columns
-                        imgupload.saveEventually();
-                        onUpdateClicked();
+                        imgupload.saveEventually(new SaveCallback() {
+                            @Override
+                            public void done(ParseException e) {
+                                onUpdateClicked();
+                            }
+                        });
                     }
+                }
                 }, new ProgressCallback() {
                     public void done(Integer percentDone) {
                         // Update your progress spinner here. percentDone will be between 0 and 100.
@@ -226,7 +227,7 @@ public class TaskViewDialog extends DialogFragment {
             public void done(List<ParseObject> objects, ParseException e) {
                 if(e==null)
                 {
-                    for(ParseObject task:objects)
+                    for(final ParseObject task:objects)
                     {
                         task.put("Status",String.valueOf(statusSpinner.getSelectedItem()));
                         task.saveEventually(new SaveCallback() {
@@ -234,8 +235,14 @@ public class TaskViewDialog extends DialogFragment {
                             public void done(ParseException e) {
                                 if(e==null) {
                                     progressDialog.dismiss();
-                                    ((TasksActivity)getActivity()).onRefreshClicked();
                                     getDialog().dismiss();
+                                    try {
+                                        getDialog().dismiss();
+                                        ((TasksActivity)getActivity()).onRefreshClicked();
+                                    }
+                                    catch (Exception ex) {
+                                        Log.i("err","error");
+                                    }
                                 }
                             }
                         });
@@ -243,11 +250,18 @@ public class TaskViewDialog extends DialogFragment {
                 }
                 else
                 {
-                   /* Toast err = Toast.makeText(getContext(),"Unable to get update data in server",Toast.LENGTH_LONG);
-                    err.show();*/
+                   Toast err = Toast.makeText(getContext(),"Unable to get update data in server",Toast.LENGTH_LONG);
+                    err.show();
                 }
             }
         },id,Description,TeamMember,"Task_status",String.valueOf(statusSpinner.getSelectedItem()));
+    }
+
+
+    private void StartTaskActivty()
+    {
+        Intent i = new Intent(getActivity(), TasksActivity.class);
+        startActivity(i);
     }
 
     private class CustomOnItemSelectedListener implements android.widget.AdapterView.OnItemSelectedListener {

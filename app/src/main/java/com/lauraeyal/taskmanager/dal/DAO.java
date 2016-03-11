@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.lauraeyal.taskmanager.common.*;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
+import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.ParseObject;
@@ -22,8 +23,10 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.parse.SignUpCallback;
 
+import java.lang.reflect.Member;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 import bolts.Task;
 
@@ -40,6 +43,7 @@ public class DAO implements IDataAcces
     private Context context;
     private MembersDBHelper MembersdbHelper;
     private TaskDBHelper TaskdbHelper;
+    private String adminUser,adminPassword;
     private String[] membersColumns = {MembersDBContract.MembersEntry._ID,MembersDBContract.MembersEntry.COLUMN_MEMBER_USERNAME
     ,MembersDBContract.MembersEntry.COLUMN_MEMBER_PASSWORD,MembersDBContract.MembersEntry.COLUMN_MEMBER_PHONE,MembersDBContract.MembersEntry.COLUMN_MEMBER_MAILSENT
     ,MembersDBContract.MembersEntry.COLUMN_MEMBER_TEAM,MembersDBContract.MembersEntry.COLUMN_MEMBER_PERMISSION};
@@ -308,7 +312,7 @@ public class DAO implements IDataAcces
             query.findInBackground(new FindCallback<ParseUser>() {
                 public void done(List<ParseUser> objects, ParseException e) {
                     if (e == null) {
-                        for (ParseUser user: objects) {
+                        for (ParseUser user : objects) {
                             ParseObject Parsetasks = new ParseObject("Tasks");
                             Parsetasks.put("Description", task.GetDescription());
                             Parsetasks.put("Category", task.getCategory());
@@ -322,7 +326,7 @@ public class DAO implements IDataAcces
                             Parsetasks.saveEventually(callback);
                         }
                     } else {
-                        Toast err = Toast.makeText(context,"Unable to connect server to add task",Toast.LENGTH_LONG);
+                        Toast err = Toast.makeText(context, "Unable to connect server to add task", Toast.LENGTH_LONG);
                         err.show();// Something went wrong.
                     }
                 }
@@ -361,6 +365,7 @@ public class DAO implements IDataAcces
 
     private User cursorTouser(Cursor cursor) {
         User f = new User();
+        f.setId(cursor.getInt(cursor.getColumnIndex(MembersDBContract.MembersEntry._ID)));
         f.setUserName(cursor.getString(cursor.getColumnIndex(MembersDBContract.MembersEntry.COLUMN_MEMBER_USERNAME)));
         f.setPassword(cursor.getString(cursor.getColumnIndex(MembersDBContract.MembersEntry.COLUMN_MEMBER_PASSWORD)));
         f.setPhoneNumber(cursor.getString((cursor.getColumnIndex(MembersDBContract.MembersEntry.COLUMN_MEMBER_PHONE))));
@@ -371,13 +376,17 @@ public class DAO implements IDataAcces
     }
 
     @Override
-    public void RemoveTask(TaskItem task) {
+    public void RemoveTask(FindCallback<ParseObject> callback,TaskItem task) {
         SQLiteDatabase database = null;
         try {
             database = TaskdbHelper.getReadableDatabase();
             long id = task.getId();
             database.delete(TaskDBContract.TaskEntry.TABLE_NAME, TaskDBContract.TaskEntry._ID + " = " + id,
                     null);
+            ParseQuery<ParseObject> query = ParseQuery.getQuery("Tasks");
+            query.whereEqualTo("Description",task.GetDescription());
+            query.whereEqualTo("TeamMember", task.get_teamMemebr());
+            query.findInBackground(callback);
         }finally {
             if(database != null){
                 database.close();
@@ -385,6 +394,36 @@ public class DAO implements IDataAcces
         }
     }
 
+    public void DeleteUser(String userMail, final LogInCallback callback)
+    {
+        adminPassword = ParseUser.getCurrentUser().getString("Phone");
+        adminUser = ParseUser.getCurrentUser().getUsername();
+        SQLiteDatabase database = null;
+        try {
+            database = MembersdbHelper.getReadableDatabase();
+
+            database.delete(MembersDBContract.MembersEntry.TABLE_NAME, MembersDBContract.MembersEntry.COLUMN_MEMBER_USERNAME + " = " +userMail,
+                    null);
+            ParseQuery<ParseUser> query = ParseUser.getQuery();
+            query.whereEqualTo("username", userMail);
+            query.findInBackground(new FindCallback<ParseUser>() {
+                public void done(List<ParseUser> objects, ParseException e) {
+                    if (e == null) {
+                        for (ParseUser user : objects) {
+                            ParseUser.logOut();
+                            ParseUser.logInInBackground(user.getUsername(),user.getString("Phone"),  callback);
+                           // user.deleteInBackground();
+                        }
+                    }
+                }
+        });
+        }
+            finally {
+            if(database != null){
+                database.close();
+            }
+        }
+    }
     @Override
     public User AddUser(User usr,SignUpCallback callback) {
         SQLiteDatabase database = null;
@@ -488,7 +527,24 @@ public class DAO implements IDataAcces
     {
         return tName;
     }
+    public void UpdateUserField(String fieldName,int numVal,String strVal,int userID)
+    {
+        SQLiteDatabase database = null;
+        try {
+            database = MembersdbHelper.getReadableDatabase();
+            ContentValues args = new ContentValues();
+            if(numVal !=0 || strVal.equals(""))
+                args.put(fieldName, numVal );
+            else
+                args.put(fieldName, strVal);
+            database.update(MembersDBContract.MembersEntry.TABLE_NAME, args, MembersDBContract.MembersEntry._ID + "=" + userID, null);
+        }
 
+        finally {
+            if (database != null)
+                database.close();
+        }
+    }
 
 
 }

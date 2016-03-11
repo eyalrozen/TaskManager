@@ -6,7 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -24,8 +26,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
 import android.widget.Toast;
+
 import com.lauraeyal.taskmanager.ManagerWTasksFragment;
 import com.lauraeyal.taskmanager.R;
 import com.lauraeyal.taskmanager.ManagerATasksFragment;
@@ -35,48 +37,69 @@ import com.lauraeyal.taskmanager.common.TaskItem;
 import com.lauraeyal.taskmanager.pushNotification.App42GCMController;
 import com.lauraeyal.taskmanager.pushNotification.App42GCMService;
 import com.parse.FindCallback;
+import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.shephertz.app42.paas.sdk.android.App42API;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class TasksActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,  App42GCMController.App42GCMListener{
+   public static String currentFrag;
+    private Boolean exit = false;
     private TaskController controller;
     private static final String GoogleProjectNo = "219405474304";
     private TabLayout tabLayout;
     private ViewPager viewPager;
+    private String TeamMember,Description;
+    private int doneTaskID;
     public static ArrayList<String> newTasksList;
     NavigationView navigationView;
     DrawerLayout drawer;
     ViewPagerAdapter adapter;
     SharedPreferences sharedpreferences;
     ProgressDialog progressDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         sharedpreferences = getSharedPreferences(LoginActivity.MyPREFERENCES, Context.MODE_PRIVATE);
         startService(new Intent(this, TimeService.class));
-        App42API.initialize(this, "153663557f7a68f62f95cfae71037944af5a4a38a08cb94da5610124596fa159", "6b2e6c13f4753b4c1c248c07373da4b82714957db2f69a4f3b6d728398da98d5");
-        App42API.setLoggedInUser(ParseUser.getCurrentUser().getUsername()) ;
+        try{
+            App42API.initialize(this, "153663557f7a68f62f95cfae71037944af5a4a38a08cb94da5610124596fa159", "6b2e6c13f4753b4c1c248c07373da4b82714957db2f69a4f3b6d728398da98d5");
+            App42API.setLoggedInUser(ParseUser.getCurrentUser().getUsername()) ;
+        }
+        catch (Exception e){}
         newTasksList = new ArrayList<String>();
         Bundle extras = getIntent().getExtras();
         if(extras !=null)
         {
             String newTaskDescription = getIntent().getStringExtra("newTask");
             String newTaskTMember = getIntent().getStringExtra("TeamMember");
-            App42GCMController.sendPushToUser(newTaskTMember,
-                    "You got new task:"+newTaskDescription, this);
+            try {
+                App42GCMController.sendPushToUser(newTaskTMember,
+                        "You got new task: " + newTaskDescription, this);
+            }
+            catch(Exception e){}
         }
-      /*  String newTaskDescription = intent.getStringExtra("newTask");
-        String newTaskTMember = intent.getStringExtra("TeamMember");
-        if(!newTaskDescription.equals(""))
-        {
-            App42GCMController.sendPushToUser(newTaskTMember,
-                    "You got new task:"+newTaskDescription, this);
-        }*/
+        if(ParseUser.getCurrentUser().getInt("MailSend") == 0) {
+            ParseQuery<ParseUser> query = ParseUser.getQuery();
+            query.whereEqualTo("username", ParseUser.getCurrentUser().getUsername());
+            query.findInBackground(new FindCallback<ParseUser>() {
+                @Override
+                public void done(List<ParseUser> objects, ParseException e) {
+                    for(ParseUser usr : objects)
+                    {
+                        usr.put("MailSend",1);
+                        usr.saveInBackground();
+                    }
+                }
+            });
+        }
         controller = new TaskController(this);
         if ((int) ParseUser.getCurrentUser().get("isAdmin") == 0) {
             setContentView(R.layout.activity_tasks_member);
@@ -135,7 +158,6 @@ public class TasksActivity extends AppCompatActivity
         });
     }
 
-
     public void onRefreshClicked()
     {
         final ManagerWTasksFragment frag1 = (ManagerWTasksFragment)adapter.getItem(0);
@@ -163,9 +185,7 @@ public class TasksActivity extends AppCompatActivity
                     controller.SyncParseTaskList(UpdateList);
                     frag1.OnRefreshClicked();
                     frag2.OnRefreshClicked();
-                }
-                else
-                {
+                } else {
                     frag1.ParseError();
                     frag2.ParseError();
                 }
@@ -181,12 +201,20 @@ public class TasksActivity extends AppCompatActivity
     }
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
+            if (exit) {
+                finish(); // finish activity
+            } else {
+                Toast.makeText(this, "Press Back again to Exit.",
+                        Toast.LENGTH_SHORT).show();
+                exit = true;
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        exit = false;
+                    }
+                }, 3 * 1000);
+
+            }
     }
 
     @Override
@@ -206,7 +234,6 @@ public class TasksActivity extends AppCompatActivity
         final ManagerATasksFragment frag2 = (ManagerATasksFragment)adapter.getItem(1);
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_sortStatus) {
-
             frag2.OnSortByStatusClicked();
             return true;
         }
@@ -215,13 +242,11 @@ public class TasksActivity extends AppCompatActivity
             frag1.OnSortByDueClicked();
             return true;
         }
-
         if (id == R.id.action_sortPriority) {
             frag1.OnSortByPriorityClicked();
             frag2.OnSortByPriorityClicked();
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -293,6 +318,20 @@ public class TasksActivity extends AppCompatActivity
         return true;
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        if (requestCode == 1888) {
+            final ManagerWTasksFragment frag1 = (ManagerWTasksFragment)adapter.getItem(0);
+            final ManagerATasksFragment frag2 = (ManagerATasksFragment)adapter.getItem(1);
+            Bitmap bmp = (Bitmap) data.getExtras().get("data");
+            if(currentFrag.equals("frag1"))
+                frag1.uploadPictureToParse(bmp);
+            else
+                frag2.uploadPictureToParse(bmp);
+        }
+    }
+
     public void onStart() {
         super.onStart();
         if (App42GCMController.isPlayServiceAvailable(this)) {
@@ -332,8 +371,6 @@ public class TasksActivity extends AppCompatActivity
         public void onReceive(Context context, Intent intent) {
             String message = intent
                     .getStringExtra(App42GCMService.ExtraMessage);
-            /*Log.i("MainActivity-BroadcastReceiver", "Message Recieved " + " : "
-                    + message);*/
         }
     };
 
@@ -347,7 +384,7 @@ public class TasksActivity extends AppCompatActivity
     //Push notification methods
     @Override
     public void onError(String errorMsg) {
-
+        Toast.makeText(getApplicationContext(),"Push notification error: "+errorMsg,Toast.LENGTH_LONG).show();
     }
 
     @Override

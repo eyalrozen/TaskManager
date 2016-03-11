@@ -186,6 +186,11 @@ public class TaskController implements ITaskController {
         dao.UpdateTask(callback,taskID,Description,teamMember,column,UpdatedValue);
     }
 
+    @Override
+    public void RemoveTask(FindCallback<ParseObject> callback, TaskItem task) {
+        dao.RemoveTask(callback,task);
+    }
+
     public void registerOnDataSourceChanged(OnDataSourceChangeListener listener)
     {
         if(listener!=null)
@@ -202,11 +207,5 @@ public class TaskController implements ITaskController {
             listener.DataSourceChanged();
         }
     }
-
-    public void createAlarm(String taskDescription,String teamMember)
-    {
-        AlarmHelper.setAlarm(context,30);
-    }
-
 
 }

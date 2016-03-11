@@ -71,46 +71,14 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder>
         holder.taskDate.setText(separated[0]);
         holder.taskeHour.setText(separated[1]);
         //Search if its new task
-        if(item.GetTaskApprovle() == -1) {
-            holder.itemView.findViewById(R.id.tcard_view_layout).setBackgroundColor(Color.RED);
-        }
-        else if(TasksActivity.newTasksList.size()>0 && (int) ParseUser.getCurrentUser().get("isAdmin") == 0)
-        {
-            for (String desc: TasksActivity.newTasksList) {
-                if(item.GetDescription().equals(desc) && item.GetTaskApprovle() != -1)
-                {
-                    holder.itemView.findViewById(R.id.tcard_view_layout).setBackgroundColor(Color.YELLOW);
-
-                    ParseQuery<ParseObject> query = ParseQuery.getQuery("Tasks");
-                    query.whereEqualTo("Description",desc);
-                    query.whereEqualTo("TeamMember", item.get_teamMemebr());
-                    query.findInBackground(new FindCallback<ParseObject>() {
-                        @Override
-                        public void done(List<ParseObject> objects, ParseException e) {
-                            if(e==null)
-                            {
-                                for(ParseObject task:objects)
-                                {
-                                    task.put("isNew",false);
-                                    task.saveEventually(new SaveCallback() {
-                                        @Override
-                                        public void done(ParseException e) {
-                                           Log.d("parse", "error update parse");
-                                        }
-                                    });
-                                }
-                            }
-                        }
-                    });
-                    TasksActivity.newTasksList.remove(desc);
-                }
-            }
-        }
+        if(item.GetTaskApprovle() == -1)
+            holder.itemView.findViewById(R.id.card_status).setBackgroundColor(Color.rgb(196,16,16));
+        else if(TasksActivity.newTasksList.size()>0 && TasksActivity.newTasksList.contains(item.GetDescription()))
+            holder.itemView.findViewById(R.id.card_status).setBackgroundColor(Color.rgb(245,154,27));
         else if (item.GetTaskStatus().equals("Done"))
-            holder.itemView.findViewById(R.id.tcard_view_layout).setBackgroundColor(Color.GREEN);
-        else{
-            holder.itemView.findViewById(R.id.tcard_view_layout).setBackgroundColor(Color.WHITE);
-        }
+            holder.itemView.findViewById(R.id.card_status).setBackgroundColor(Color.rgb(26,189,75));
+        else
+            holder.itemView.findViewById(R.id.card_status).setBackgroundColor(Color.WHITE);
     }
 
     public void UpdateDataSource(List<TaskItem> items)

@@ -7,6 +7,7 @@ import android.content.SharedPreferences.Editor;
 import com.lauraeyal.taskmanager.common.*;
 import com.lauraeyal.taskmanager.dal.*;
 import com.parse.FindCallback;
+import com.parse.LogInCallback;
 import com.parse.ParseUser;
 import com.parse.SignUpCallback;
 
@@ -98,9 +99,17 @@ public class UsersController implements IUsersController
 		return dao.GetTeamName();
 	}
 
+	public void UpdateUserField(String fieldName,int numVal,String strVal,int userID)
+	{
+		dao.UpdateUserField(fieldName,numVal,strVal,userID);
+	}
 
 	@Override
 	public void SyncTeamName() {
 		dao.SyncTeamName();
+	}
+	public void DeleteUser(String userMail,LogInCallback callback)
+	{
+		dao.DeleteUser(userMail,callback);
 	}
 }

@@ -18,9 +18,11 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -30,9 +32,16 @@ import com.lauraeyal.taskmanager.*;
 import com.lauraeyal.taskmanager.R;
 import com.lauraeyal.taskmanager.bl.*;
 import com.lauraeyal.taskmanager.common.*;
+import com.lauraeyal.taskmanager.dal.MembersDBContract;
+import com.parse.DeleteCallback;
 import com.parse.FindCallback;
+import com.parse.LogInCallback;
 import com.parse.ParseException;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +50,9 @@ import java.util.List;
 public class UsersActivity extends AppCompatActivity implements
         OnDataSourceChangeListener , NavigationView.OnNavigationItemSelectedListener,MyItemClickListener,MyItemLongClickListener {
     private ImageButton FAB;
+    private String adminUsername;
+    private String adminPassword;
+    private TextView noMembersText;
     private RecyclerView mRecyclerView;
     private UserAdapter uAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -52,6 +64,9 @@ public class UsersActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_members);
         mRecyclerView = (RecyclerView) findViewById(R.id.my_recycle_view);
+        adminUsername = ParseUser.getCurrentUser().getUsername();
+        adminPassword = ParseUser.getCurrentUser().getString("Phone");
+       // adminPassword = ParseUser.getCurrentUser().get
         //create the controller.
         controller = new UsersController(this);
         controller.SyncTeamName();
@@ -59,6 +74,7 @@ public class UsersActivity extends AppCompatActivity implements
         // in content do not change the layout size of the RecyclerView
         controller.registerOnDataSourceChanged(this);
         mRecyclerView.setHasFixedSize(true);
+        noMembersText = (TextView)findViewById(R.id.noMemberText);
         Bundle extras = getIntent().getExtras();
         progressDialog = new ProgressDialog(UsersActivity.this);
         progressDialog.setIndeterminate(true);
@@ -103,28 +119,23 @@ public class UsersActivity extends AppCompatActivity implements
         doneBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent email = new Intent(Intent.ACTION_SEND_MULTIPLE);
-                List<User> allUsers = controller.GetUsersList();
                 ArrayList<String> newUsers = new ArrayList<String>();
+                progressDialog.setMessage("Loading..");
+                List<User> allUsers = controller.GetUsersList();
                 for (User usr:allUsers) {
                     if(usr.getMailSend()==0) {
                         newUsers.add(usr.getUserName());
-                        email.putExtra(Intent.EXTRA_BCC, new String[]{usr.getUserName()});
-                        usr.setMailSent(1);
+                        controller.UpdateUserField(MembersDBContract.MembersEntry.COLUMN_MEMBER_MAILSENT,1,"",usr.getId());
                     }
                 }
-                if(newUsers.size()>0)
-                    email.putStringArrayListExtra(Intent.EXTRA_BCC, newUsers);
-                String subject = "Invitation to Join "+ controller.GetTeamName()+ " team";
-                String message = "Hi\n" +
-                        "\tYou have been invited to be a team member in an "+ controller.GetTeamName() +" Team created by " + ParseUser.getCurrentUser().getUsername()+ ".\n" +
-                        "\tUse this link to download and install the App from Google Play.";
-                email.putExtra(Intent.EXTRA_SUBJECT, subject);
-                email.putExtra(Intent.EXTRA_TEXT, message);
-
-                // need this to prompts email client only
-                email.setType("message/rfc822");
-                startActivity(Intent.createChooser(email, "Choose an Email client :"));
+                if(newUsers.size()>0) {
+                    progressDialog.dismiss();
+                    sendMailToNewMembers(newUsers);
+                }
+                else {
+                    progressDialog.dismiss();
+                    Toast.makeText(getApplicationContext(), "All members got invitation already", Toast.LENGTH_LONG).show();
+                }
             }
         });
     }
@@ -132,6 +143,8 @@ public class UsersActivity extends AppCompatActivity implements
     void ContinueInit()
     {
         uAdapter = new UserAdapter(controller.GetUsersList());
+        if(controller.GetUsersList().size()>0)
+            noMembersText.setVisibility(View.GONE);
         progressDialog.dismiss();
         mRecyclerView.setAdapter(uAdapter);
         uAdapter.setOnItemClickListener(this);
@@ -141,8 +154,8 @@ public class UsersActivity extends AppCompatActivity implements
     public void onItemClick(View view, int postion) {
 
     }
-    public void onItemLongClick(View view, int postion) {
-        User usr = controller.GetUsersList().get(postion);
+    public void onItemLongClick(final View view, int postion) {
+        final User usr = controller.GetUsersList().get(postion);
 
         if(usr != null){
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
@@ -152,9 +165,29 @@ public class UsersActivity extends AppCompatActivity implements
                     .setCancelable(false)
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            // if this button is clicked, close
-                            // current activity
-                            finish();
+                            progressDialog.setMessage("Deleting User..");
+                            progressDialog.show();
+                            controller.DeleteUser(usr.getUserName(), new LogInCallback() {
+                                @Override
+                                public void done(ParseUser user, ParseException e) {
+                                    if(e==null)
+                                    {
+                                        user.deleteInBackground(new DeleteCallback() {
+                                            @Override
+                                            public void done(ParseException e) {
+                                                ParseUser.logInInBackground(adminUsername, adminPassword, new LogInCallback() {
+                                                    @Override
+                                                    public void done(ParseUser user, ParseException e) {
+                                                        progressDialog.dismiss();
+                                                        Snackbar.make(view,"User deleted successfully",Snackbar.LENGTH_LONG).setAction("action",null).show();
+                                                        ContinueInit();
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    }
+                                }
+                            });
                         }
                     })
                     .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -169,6 +202,22 @@ public class UsersActivity extends AppCompatActivity implements
 
             //Snackbar.make(view,"Short Click "+ usr.getUserName(),Snackbar.LENGTH_LONG).setAction("action",null).show();
         }
+    }
+
+    private void sendMailToNewMembers(ArrayList<String> newUsers)
+    {
+        Intent email = new Intent(Intent.ACTION_SEND_MULTIPLE);
+        email.putExtra(Intent.EXTRA_BCC, newUsers.toArray(new String[newUsers.size()]));
+        String subject = "Invitation to Join "+ controller.GetTeamName()+ " team";
+        String message = "Hi\n" +
+                "\tYou have been invited to be a team member in an "+ controller.GetTeamName() +" Team created by " + ParseUser.getCurrentUser().getUsername()+ ".\n" +
+                "\tUse this link to download and install the App from Google Play.";
+        email.putExtra(Intent.EXTRA_SUBJECT, subject);
+        email.putExtra(Intent.EXTRA_TEXT, message);
+
+        // need this to prompts email client only
+        email.setType("message/rfc822");
+        startActivity(Intent.createChooser(email, "Choose an Email client :"));
     }
 
     @Override
