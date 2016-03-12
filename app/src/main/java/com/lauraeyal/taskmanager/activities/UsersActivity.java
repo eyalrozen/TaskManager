@@ -167,7 +167,7 @@ public class UsersActivity extends AppCompatActivity implements
                         public void onClick(DialogInterface dialog, int id) {
                             progressDialog.setMessage("Deleting User..");
                             progressDialog.show();
-                            controller.DeleteUser(usr.getUserName(), new LogInCallback() {
+                            controller.DeleteUser(usr, new LogInCallback() {
                                 @Override
                                 public void done(ParseUser user, ParseException e) {
                                     if(e==null)

@@ -175,7 +175,7 @@ public class addtaskActivity extends AppCompatActivity implements DatePickerFrag
                 finish();
                 return true;
             default:
-                if(!TextUtils.isEmpty(descText.getText())) {
+                if(!TextUtils.isEmpty(descText.getText()) && !TextUtils.isEmpty(_date)&& !TextUtils.isEmpty(_time)) {
                     progressDialog.show();
                     String dueDate = _date + " "+ _time;
                     final String Desc = descText.getText().toString();
@@ -199,7 +199,7 @@ public class addtaskActivity extends AppCompatActivity implements DatePickerFrag
 
                 }
                 else
-                    Snackbar.make(findViewById(android.R.id.content),"Please fill description",Snackbar.LENGTH_LONG).setAction("Action", null).show();
+                    Snackbar.make(findViewById(android.R.id.content),"Please fill all the fieds ",Snackbar.LENGTH_LONG).setAction("Action", null).show();
                 return true;
                 //return super.onOptionsItemSelected(item);
         }

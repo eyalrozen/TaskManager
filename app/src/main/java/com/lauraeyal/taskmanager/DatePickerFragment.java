@@ -54,7 +54,11 @@ public class DatePickerFragment extends DialogFragment
         if(mCallback!=null)
         {
             StringBuilder sb = new StringBuilder();
-            sb.append(day);
+            if(day <10)
+                sb.append("0"+day);
+            else
+                sb.append(day);
+
             sb.append("/");
             if(month <9)
                 sb.append("0"+(month+1));

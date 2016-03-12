@@ -108,8 +108,8 @@ public class UsersController implements IUsersController
 	public void SyncTeamName() {
 		dao.SyncTeamName();
 	}
-	public void DeleteUser(String userMail,LogInCallback callback)
+	public void DeleteUser(User user,LogInCallback callback)
 	{
-		dao.DeleteUser(userMail,callback);
+		dao.DeleteUser(user,callback);
 	}
 }

@@ -394,7 +394,7 @@ public class DAO implements IDataAcces
         }
     }
 
-    public void DeleteUser(String userMail, final LogInCallback callback)
+    public void DeleteUser(User user, final LogInCallback callback)
     {
         adminPassword = ParseUser.getCurrentUser().getString("Phone");
         adminUser = ParseUser.getCurrentUser().getUsername();
@@ -402,10 +402,10 @@ public class DAO implements IDataAcces
         try {
             database = MembersdbHelper.getReadableDatabase();
 
-            database.delete(MembersDBContract.MembersEntry.TABLE_NAME, MembersDBContract.MembersEntry.COLUMN_MEMBER_USERNAME + " = " +userMail,
+            database.delete(MembersDBContract.MembersEntry.TABLE_NAME, MembersDBContract.MembersEntry._ID + " = " +user.getId(),
                     null);
             ParseQuery<ParseUser> query = ParseUser.getQuery();
-            query.whereEqualTo("username", userMail);
+            query.whereEqualTo("username", user.getUserName());
             query.findInBackground(new FindCallback<ParseUser>() {
                 public void done(List<ParseUser> objects, ParseException e) {
                     if (e == null) {

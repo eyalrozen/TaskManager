@@ -14,7 +14,7 @@
             android:background="?attr/colorPrimary" app:popupTheme="@style/AppTheme.PopupOverlay" />
     </android.support.design.widget.AppBarLayout>
 
-   <LinearLayout
+   <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -29,7 +29,32 @@
            android:text="Task Manager"
            android:id="@+id/textView12"
            android:gravity="center"
-           android:layout_gravity="center" />
+           android:layout_gravity="center"
+           android:textSize="30dp"
+           android:layout_alignParentTop="true"
+           android:layout_centerHorizontal="true"
+           android:layout_marginTop="48dp" />
+
+       <ImageView
+           android:layout_width="match_parent"
+           android:layout_height="200dp"
+           android:id="@+id/imageView2"
+           android:layout_gravity="center_horizontal"
+           android:src="@drawable/logo1"
+           android:layout_centerInParent="true" />
+
+
+       <TextView
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:textAppearance="?android:attr/textAppearanceLarge"
+           android:text="Ver 1.0"
+           android:id="@+id/textView17"
+           android:layout_gravity="center_horizontal"
+           style="@style/Base.TextAppearance.AppCompat"
+           android:layout_below="@+id/textView12"
+           android:layout_centerHorizontal="true"
+           android:textSize="20dp" />
 
        <TextView
            android:layout_width="wrap_content"
@@ -38,7 +63,10 @@
            android:text="Eyal Rozenhak"
            android:id="@+id/textView13"
            android:gravity="center"
-           android:layout_gravity="center" />
+           android:layout_gravity="center"
+           android:layout_marginTop="10dp"
+           android:layout_below="@+id/imageView2"
+           android:layout_centerHorizontal="true" />
 
        <TextView
            android:layout_width="wrap_content"
@@ -47,8 +75,11 @@
            android:text="Laura Chiche"
            android:id="@+id/textView14"
            android:gravity="center"
-           android:layout_gravity="center" />
-   </LinearLayout>
+           android:layout_gravity="center"
+           android:layout_below="@+id/textView13"
+           android:layout_alignLeft="@+id/textView13"
+           android:layout_alignStart="@+id/textView13" />
+   </RelativeLayout>
 
 
 </android.support.design.widget.CoordinatorLayout>

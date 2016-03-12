@@ -31,6 +31,6 @@ public interface IDataAcces {
     void UpdateTask( FindCallback<ParseObject> callback , TaskItem task,String column,int updatedValue);
     void UpdateTask(FindCallback<ParseObject> callback , int taskID,String Description,String teamMember,String column,String UpdatedValue);
     TaskItem AddTask(TaskItem task,SaveCallback callback);
-    public void DeleteUser(String userMail,LogInCallback callback);
+    public void DeleteUser(User user,LogInCallback callback);
 
 }

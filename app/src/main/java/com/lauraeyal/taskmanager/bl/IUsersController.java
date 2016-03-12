@@ -16,5 +16,5 @@ public interface IUsersController {
     void SyncParseUsers(FindCallback<ParseUser> callback);
     void UpdateUsersTable(List<ParseUser> pUsers);
     void UpdateUserField(String fieldName,int numVal,String strVal,int userID);
-    void DeleteUser(String userMail,LogInCallback callback);
+    void DeleteUser(User user,LogInCallback callback);
 }

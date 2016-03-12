@@ -150,9 +150,9 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
 
     public void OnRefreshClicked()
     {
-        mAdapter.notifyDataSetChanged();
-        controller.invokeDataSourceChanged();
 
+        controller.invokeDataSourceChanged();
+        mAdapter.notifyDataSetChanged();
         if(controller.GetAllTaskList().size()>0)
             noTasksText.setVisibility(View.GONE);
         else

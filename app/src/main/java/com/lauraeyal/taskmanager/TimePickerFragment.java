@@ -48,9 +48,15 @@ public class TimePickerFragment extends DialogFragment
         if(mCallback!=null)
         {
             StringBuilder sb = new StringBuilder();
-            sb.append(hourOfDay);
+            if(hourOfDay <10)
+                sb.append("0"+hourOfDay);
+            else
+                sb.append(hourOfDay);
             sb.append(":");
-            sb.append(Minute);
+            if(Minute < 10)
+                sb.append("0"+Minute);
+            else
+                sb.append(Minute);
             mCallback.returnTime(sb.toString());
         }
     }
