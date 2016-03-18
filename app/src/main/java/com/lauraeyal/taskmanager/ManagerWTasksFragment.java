@@ -98,11 +98,8 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
         progressDialog.setMessage("Loading Tasks...");
         progressDialog.show();
         controller = new TaskController(getActivity());
-        // use this setting to improve performance if you know that changes
-        // in content do not change the layout size of the RecyclerView
         controller.registerOnDataSourceChanged(this);
         mRecyclerView.setHasFixedSize(true);
-
         // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(context);
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -137,7 +134,7 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
             }
         });
 
-        // Inflate the layout for this fragment
+        // on slide down refresh listener
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -157,15 +154,14 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
         mRecyclerView.setAdapter(mAdapter);
         mAdapter.setOnItemClickListener(this);
         mAdapter.setOnItemLongClickListener(this);
-
     }
-
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
     }
 
+    //Open dialog with item clicked data
     public void onItemClick(final View view, int postion)
     {
         DialogFragment taskF = new TaskViewDialog();
@@ -183,8 +179,7 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
             taskArgs.putString("Priority", selectedTask.GetPriority());
             rejectedTask.setArguments(taskArgs);
             rejectedTask.show(((Activity) view.getContext()).getFragmentManager(), "RejectTask");
-        }
-        else if(selectedTask.GetTaskApprovle() == 0 && ParseUser.getCurrentUser().getInt("isAdmin") == 0) {
+        } else if(selectedTask.GetTaskApprovle() == 0 && ParseUser.getCurrentUser().getInt("isAdmin") == 0) {
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
             alertDialogBuilder.setTitle("Task Approval");
             alertDialogBuilder.setMessage("Do you accept the task "+selectedTask.GetDescription()+"?").setCancelable(true)
@@ -296,11 +291,6 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
                     dialog.dismiss();
                     TasksActivity.currentFrag="frag1";
                     onCameraClicked();
-                    //getDialog().dismiss();
-                    //((TasksActivity)getActivity()).onCameraClicked(id, TeamMember,Description);
-                    // Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
-                    // getActivity().startActivityForResult(intent,CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
                 }
             });
             downloadBtn.setOnClickListener(new View.OnClickListener() {
@@ -354,6 +344,7 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
         }
     }
 
+    //handle task display according to status
     private class CustomOnItemSelectedListener implements android.widget.AdapterView.OnItemSelectedListener {
         public void onItemSelected(AdapterView<?> parent, View view, int pos,long id) {
             if(pos  == 2) {
@@ -380,6 +371,7 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
         }
     }
 
+    //Update task info after update clicked inside task dialog
     public void onUpdateClicked()
     {
         progressDialog.show();
@@ -414,6 +406,7 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
         }, id, Description, TeamMember, "Task_status", String.valueOf(statusSpinner.getSelectedItem()));
     }
 
+    //Handle long item clicked - delete task
     public void onItemLongClick(final View view, int postion) {
         final TaskItem selectedTask = controller.GetWaitingTaskList().get(postion);
         if(ParseUser.getCurrentUser().getInt("isAdmin") == 1){
@@ -472,23 +465,30 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
         progressDialog.dismiss();
     }
 
+    //Sort list by task priority
     public void OnSortByPriorityClicked()
     {
         mAdapter.UpdateDataSource(controller.SortWaitingTasksByPriority());
         mAdapter.notifyDataSetChanged();
     }
-
+    //Sort list by Due time
     public void OnSortByDueClicked()
     {
         mAdapter.UpdateDataSource(controller.GetWaitingTaskList());
         mAdapter.notifyDataSetChanged();
     }
-
+    //Sort list by task Status
+    public void OnSortByStatusClicked()
+    {
+        mAdapter.UpdateDataSource(controller.GetWaitingTaskList());
+        mAdapter.notifyDataSetChanged();
+    }
     public void StartProgressDialog()
     {
         progressDialog.show();
     }
 
+    //Handle parse error
     public void ParseError()
     {
         progressDialog.dismiss();
@@ -503,6 +503,7 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
         }
     }
 
+    //taking picture after camera image clicked
     public void onCameraClicked()
     {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -511,6 +512,7 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
         }
     }
 
+    //upload selected image to parse server
     public void uploadPictureToParse(Bitmap bmp){
         progressDialog.setMessage("Uploading image..");
         progressDialog.show();
@@ -551,6 +553,7 @@ public class ManagerWTasksFragment extends Fragment implements OnDataSourceChang
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data)
     {
+        //1888 = camera result
         if (requestCode == 1888) {
             //    if (resultCode == Activity.RESULT_OK) {
              progressDialog.setMessage("Uploading image..");

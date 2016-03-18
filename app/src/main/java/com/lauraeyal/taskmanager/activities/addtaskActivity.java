@@ -29,9 +29,9 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.TimePicker;
-import android.widget.Toast;
-
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+import com.lauraeyal.taskmanager.AnalyticsApplication;
 import com.lauraeyal.taskmanager.DatePickerFragment;
 import com.lauraeyal.taskmanager.R;
 import com.lauraeyal.taskmanager.TimePickerFragment;
@@ -39,23 +39,15 @@ import com.lauraeyal.taskmanager.bl.TaskController;
 import com.lauraeyal.taskmanager.bl.UsersController;
 import com.lauraeyal.taskmanager.common.TaskItem;
 import com.lauraeyal.taskmanager.common.User;
-import com.lauraeyal.taskmanager.pushNotification.App42GCMController;
 import com.parse.ParseException;
-import com.parse.ParseInstallation;
-import com.parse.ParsePush;
-import com.parse.ParseQuery;
 import com.parse.SaveCallback;
-
-import java.io.Console;
 import java.util.ArrayList;
 import java.util.List;
-
-import bolts.Task;
-
 
 public class addtaskActivity extends AppCompatActivity implements DatePickerFragment.PickDate, TimePickerFragment.PickTime {
     private Button createBtn;
     private EditText dscText;
+    private Tracker mTracker;
     private RadioButton normalRadio,urgentRadio,lowRadio;
     private EditText descText;
     private String _date,_time;
@@ -76,8 +68,8 @@ public class addtaskActivity extends AppCompatActivity implements DatePickerFrag
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Ucontroller = new UsersController(this);
         Tcontroller = new TaskController(this);
-        //createBtn = (Button) findViewById(R.id.createBtn);
-        //createBtn.setOnClickListener(OnCreateBtnClickListener);
+        AnalyticsApplication application = (AnalyticsApplication) getApplication();
+        mTracker = application.getDefaultTracker();
         rg = (RadioGroup) findViewById(R.id.statusradio);
         normalRadio = (RadioButton) findViewById(R.id.Normal);
         urgentRadio = (RadioButton) findViewById(R.id.Urgent);
@@ -90,7 +82,6 @@ public class addtaskActivity extends AppCompatActivity implements DatePickerFrag
         progressDialog = new ProgressDialog(addtaskActivity.this);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Creating Task...");
-
     }
 
     public void addListenerOnSpinnerItemSelection() {
@@ -111,23 +102,25 @@ public class addtaskActivity extends AppCompatActivity implements DatePickerFrag
         progressDialog.show();
         finish();
     }
+    //open time picker fragment
     public void showTimePickerDialog(View v) {
         DialogFragment newFragment = new TimePickerFragment();
         newFragment.show(getSupportFragmentManager(), "timePicker");
     }
 
+    //Open date picker fragment
     public void showDatePickerDialog(View v) {
         DialogFragment newFragment = new DatePickerFragment();
         newFragment.show(getSupportFragmentManager(), "datePicker");
     }
-
-
+    //get data from date picker
     @Override
     public void returnDate(String value) {
         DateText.setText(value);
         _date=value;
     }
 
+    //get data from time picker
     @Override
     public void returnTime(String value) {
         _time = value;
@@ -147,7 +140,6 @@ public class addtaskActivity extends AppCompatActivity implements DatePickerFrag
 
     // add items into spinner dynamically
     public void addItemsOnUsersSpinner() {
-
         usersSpinner = (Spinner) findViewById(R.id.usersspinner);
         List<User> tempList = Ucontroller.GetUsersList();
         for(User b : tempList)
@@ -166,7 +158,7 @@ public class addtaskActivity extends AppCompatActivity implements DatePickerFrag
         getMenuInflater().inflate(R.menu.menu_done, menu);
         return true;
     }
-
+    //add task if all required fields was filled by the admin
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -203,5 +195,11 @@ public class addtaskActivity extends AppCompatActivity implements DatePickerFrag
                 return true;
                 //return super.onOptionsItemSelected(item);
         }
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mTracker.setScreenName("AddTask");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
     }
 }

@@ -25,6 +25,7 @@ public class AddTeamActivity extends Activity {
 
     }
 
+    //Add team according to name
 	public void OnAddBtnClick(View v)
 	{
         if (teamNameEditText.getText().toString() != "") {

@@ -28,6 +28,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+import com.lauraeyal.taskmanager.AnalyticsApplication;
 import com.lauraeyal.taskmanager.ManagerWTasksFragment;
 import com.lauraeyal.taskmanager.R;
 import com.lauraeyal.taskmanager.ManagerATasksFragment;
@@ -50,6 +53,7 @@ import java.util.List;
 public class TasksActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,  App42GCMController.App42GCMListener{
    public static String currentFrag;
+    private Tracker mTracker;
     private Boolean exit = false;
     private TaskController controller;
     private static final String GoogleProjectNo = "219405474304";
@@ -68,8 +72,11 @@ public class TasksActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         sharedpreferences = getSharedPreferences(LoginActivity.MyPREFERENCES, Context.MODE_PRIVATE);
+        AnalyticsApplication application = (AnalyticsApplication) getApplication();
+        mTracker = application.getDefaultTracker();
         startService(new Intent(this, TimeService.class));
         try{
+            //register to push notification service
             App42API.initialize(this, "153663557f7a68f62f95cfae71037944af5a4a38a08cb94da5610124596fa159", "6b2e6c13f4753b4c1c248c07373da4b82714957db2f69a4f3b6d728398da98d5");
             App42API.setLoggedInUser(ParseUser.getCurrentUser().getUsername()) ;
         }
@@ -101,6 +108,7 @@ public class TasksActivity extends AppCompatActivity
             });
         }
         controller = new TaskController(this);
+        //Show member layout
         if ((int) ParseUser.getCurrentUser().get("isAdmin") == 0) {
             setContentView(R.layout.activity_tasks_member);
             navigationView = (NavigationView) findViewById(R.id.membernav_view);
@@ -115,6 +123,7 @@ public class TasksActivity extends AppCompatActivity
             }
 
         }
+        //show admin layout
         else {
             setContentView(R.layout.activity_tasks);
             navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -158,6 +167,7 @@ public class TasksActivity extends AppCompatActivity
         });
     }
 
+    //Update tasks list on local db from parse
     public void onRefreshClicked()
     {
         final ManagerWTasksFragment frag1 = (ManagerWTasksFragment)adapter.getItem(0);
@@ -224,6 +234,7 @@ public class TasksActivity extends AppCompatActivity
         return true;
     }
 
+    //Handle sort option on each task fragment (waiting, all)
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -318,6 +329,7 @@ public class TasksActivity extends AppCompatActivity
         return true;
     }
 
+    //camera result code handler
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data)
     {
@@ -345,6 +357,8 @@ public class TasksActivity extends AppCompatActivity
     @Override
     public void onResume() {
         super.onResume();
+        mTracker.setScreenName("Tasks");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
         String message = getIntent().getStringExtra(
                 App42GCMService.ExtraMessage);
         if (message != null)
@@ -352,8 +366,9 @@ public class TasksActivity extends AppCompatActivity
         IntentFilter filter = new IntentFilter(
                 App42GCMService.DisplayMessageAction);
         filter.setPriority(2);
+
         registerReceiver(mBroadcastReceiver, filter);
-        // Register mMessageReceiver to receive messages.
+        // Register mMessageReceiver to receive refresh timer data.
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
                 new IntentFilter("my-event"));
     }
@@ -416,6 +431,7 @@ public class TasksActivity extends AppCompatActivity
         });
     }
 
+    //page adapter - holds fragments
     class ViewPagerAdapter extends FragmentPagerAdapter {
         private final List<Fragment> mFragmentList = new ArrayList<>();
         private final List<String> mFragmentTitleList = new ArrayList<>();

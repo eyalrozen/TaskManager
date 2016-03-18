@@ -116,6 +116,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder>
             parentView.setOnLongClickListener(this);
         }
 
+        //Handle long & short click listener to items on list
         @Override
         public void onClick(View v) {
             if(mListener != null){

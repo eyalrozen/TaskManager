@@ -28,6 +28,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.lauraeyal.taskmanager.*;
 import com.lauraeyal.taskmanager.R;
 import com.lauraeyal.taskmanager.bl.*;
@@ -58,12 +60,15 @@ public class UsersActivity extends AppCompatActivity implements
     private RecyclerView.LayoutManager mLayoutManager;
     public UsersController controller;
     ProgressDialog progressDialog;
+    private Tracker mTracker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_members);
         mRecyclerView = (RecyclerView) findViewById(R.id.my_recycle_view);
+        AnalyticsApplication application = (AnalyticsApplication) getApplication();
+        mTracker = application.getDefaultTracker();
         adminUsername = ParseUser.getCurrentUser().getUsername();
         adminPassword = ParseUser.getCurrentUser().getString("Phone");
        // adminPassword = ParseUser.getCurrentUser().get
@@ -154,6 +159,8 @@ public class UsersActivity extends AppCompatActivity implements
     public void onItemClick(View view, int postion) {
 
     }
+
+    //Long click listener - delete Team member
     public void onItemLongClick(final View view, int postion) {
         final User usr = controller.GetUsersList().get(postion);
 
@@ -204,6 +211,7 @@ public class UsersActivity extends AppCompatActivity implements
         }
     }
 
+    //Send mail to new members
     private void sendMailToNewMembers(ArrayList<String> newUsers)
     {
         Intent email = new Intent(Intent.ACTION_SEND_MULTIPLE);
@@ -318,5 +326,11 @@ public class UsersActivity extends AppCompatActivity implements
             uAdapter.notifyDataSetChanged();
         }
 
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mTracker.setScreenName("Users");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
     }
 }

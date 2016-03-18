@@ -147,32 +147,31 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
         mAdapter.setOnItemClickListener(this);
         mAdapter.setOnItemLongClickListener(this);
     }
-
+    // Update all the data in list
     public void OnRefreshClicked()
     {
-
         controller.invokeDataSourceChanged();
-        mAdapter.notifyDataSetChanged();
+        //mAdapter.notifyDataSetChanged();
         if(controller.GetAllTaskList().size()>0)
             noTasksText.setVisibility(View.GONE);
         else
             noTasksText.setVisibility(View.VISIBLE);
         progressDialog.dismiss();
     }
+
+    //Sort list by Due time
     public void OnSortByDueClicked()
     {
         mAdapter.UpdateDataSource(controller.GetAllTaskList());
         mAdapter.notifyDataSetChanged();
-        // mAdapter = new TaskAdapter(controller.GetAllTaskList());
-
     }
-
+    //Sort list by Priority
     public void OnSortByPriorityClicked()
     {
         mAdapter.UpdateDataSource(controller.SortAllTasksByPriority());
         mAdapter.notifyDataSetChanged();
     }
-
+    //Sort list by task Status
     public void OnSortByStatusClicked()
     {
         mAdapter.UpdateDataSource(controller.SortAllTasksByStatus());
@@ -184,6 +183,7 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
         progressDialog.show();
     }
 
+    //Handle parse error
     public void ParseError()
     {
         progressDialog.dismiss();
@@ -195,6 +195,7 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
         super.onViewCreated(view, savedInstanceState);
     }
 
+    //Open dialog with item clicked data
     public void onItemClick(final View view, int postion) {
         DialogFragment taskF = new TaskViewDialog();
         final TaskItem selectedTask = controller.GetAllTaskList().get(postion);
@@ -212,6 +213,7 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
             rejectedTask.setArguments(taskArgs);
             rejectedTask.show(((Activity) view.getContext()).getFragmentManager(), "RejectTask");
         }
+        //If the member clicked the task for the first time - need to approve it
         else if(selectedTask.GetTaskApprovle() == 0 && ParseUser.getCurrentUser().getInt("isAdmin") == 0) {
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
             alertDialogBuilder.setTitle("Task Approval");
@@ -267,6 +269,7 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
             AlertDialog alertDialog = alertDialogBuilder.create();
             alertDialog.show();
         }
+        //User accept the task - get the task info
         else {
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
             final AlertDialog dialog = builder.create();
@@ -381,6 +384,7 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
         }
     }
 
+    //Handle task status spinner - what layout to display
     private class CustomOnItemSelectedListener implements android.widget.AdapterView.OnItemSelectedListener {
         public void onItemSelected(AdapterView<?> parent, View view, int pos,long id) {
             if(pos  == 2) {
@@ -407,6 +411,7 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
         }
     }
 
+    //Update task info after update button clicked
     public void onUpdateClicked()
     {
         progressDialog.show();
@@ -440,6 +445,7 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
         }, id, Description, TeamMember, "Task_status", String.valueOf(statusSpinner.getSelectedItem()));
     }
 
+    //taking picture after camera image clicked
     public void onCameraClicked()
     {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -449,6 +455,7 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
         }
     }
 
+    //Long click listener - delte task
     public void onItemLongClick(final View view, int postion) {
        /* User usr = controller.GetUsersList().get(postion);
         if(usr != null) {*/
@@ -495,7 +502,6 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
                     });
             AlertDialog alertDialog = alertDialogBuilder.create();
             alertDialog.show();
-
         }
     }
     @Override
@@ -508,8 +514,9 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data)
     {
+        //1888 = camera code
         if (requestCode == 1888) {
-            //    if (resultCode == Activity.RESULT_OK) {
+            //   Handle camera photo
              progressDialog.setMessage("Uploading image..");
             progressDialog.show();
             Bitmap bmp = (Bitmap) data.getExtras().get("data");
@@ -543,11 +550,9 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
                     // Update your progress spinner here. percentDone will be between 0 and 100.
                 }
             });
-
-            //}
         }
     }
-
+    //Upload the selected picture to parse
     public void uploadPictureToParse(Bitmap bmp){
         progressDialog.setMessage("Uploading image..");
         progressDialog.show();
@@ -581,6 +586,5 @@ public class ManagerATasksFragment extends Fragment implements OnDataSourceChang
             }
         });
 
-        //}
     }
 }

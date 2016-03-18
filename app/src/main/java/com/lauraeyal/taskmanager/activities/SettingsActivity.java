@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -35,6 +36,7 @@ public class SettingsActivity extends AppCompatActivity
     TimeService tService;
     NavigationView navigationView;
     DrawerLayout drawer;
+    private Boolean exit = false;
     Toolbar toolbar;
     Spinner timeSpinner;
     SharedPreferences sharedpreferences;
@@ -88,6 +90,7 @@ public class SettingsActivity extends AppCompatActivity
         }
     }
 
+    //connect to service that contain refresh timer according to selected number
     @Override
     protected void onStart() {
         super.onStart();
@@ -121,11 +124,19 @@ public class SettingsActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
+        if (exit) {
+            finish(); // finish activity
         } else {
-            super.onBackPressed();
+            Toast.makeText(this, "Press Back again to Exit.",
+                    Toast.LENGTH_SHORT).show();
+            exit = true;
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    exit = false;
+                }
+            }, 3 * 1000);
+
         }
     }
 
@@ -198,6 +209,7 @@ public class SettingsActivity extends AppCompatActivity
         return true;
     }
 
+    //Update time refresh interval on service
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {

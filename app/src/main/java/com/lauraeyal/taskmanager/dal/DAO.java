@@ -35,7 +35,6 @@ import bolts.Task;
  */
 public class DAO implements IDataAcces
 {
-
     private List<TaskItem> WaitingTaskList = new ArrayList<TaskItem>();
     private List<TaskItem> AllTaskList = new ArrayList<TaskItem>();
     private static DAO instance;
@@ -50,7 +49,6 @@ public class DAO implements IDataAcces
     private String[] tasksColumns = { TaskDBContract.TaskEntry._ID,TaskDBContract.TaskEntry.COLUMN_TASK_DESCRIPTION,
             TaskDBContract.TaskEntry.COLUMN_TASK_CATEGORY, TaskDBContract.TaskEntry.COLUMN_TASK_PRIORITY, TaskDBContract.TaskEntry.COLUMN_TASK_LOCATION,
             TaskDBContract.TaskEntry.COLUMN_TASK_DUETIME, TaskDBContract.TaskEntry.COLUMN_TASK_ASSIGNEDWORKER, TaskDBContract.TaskEntry.COLUMN_TASK_STATUS,TaskDBContract.TaskEntry.COLUMN_TASK_APPROVLE};
-
 
     private DAO(Context context) {
         this.context = context;
@@ -68,6 +66,10 @@ public class DAO implements IDataAcces
         return instance;
     }
 
+    /**
+     *
+     * @return user list from DB
+     */
     public List<User> GetUserList()
     {
         SQLiteDatabase database = null;
@@ -94,6 +96,10 @@ public class DAO implements IDataAcces
         }
     }
 
+    /**
+     * get all parse users
+     * @param callback - parse callback
+     */
     public void SyncParseUsers(FindCallback<ParseUser> callback)
     {
         ParseQuery<ParseUser> query = ParseUser.getQuery();
@@ -101,6 +107,10 @@ public class DAO implements IDataAcces
         query.findInBackground(callback);
     }
 
+    /**
+     * update users list on local db from parse
+     * @param updateUsersList
+     */
     @Override
     public void UpdateUsersTable(List<User> updateUsersList) {
         SQLiteDatabase database = null;
@@ -114,6 +124,10 @@ public class DAO implements IDataAcces
             AddUserFromParse(t);
     }
 
+    /**
+     *
+     * @return all waiting task list on local db
+     */
     public List<TaskItem> GetWaitingTaskList()
     {
         ParseUser user = ParseUser.getCurrentUser();
@@ -147,6 +161,10 @@ public class DAO implements IDataAcces
         }
     }
 
+    /**
+     *
+     * @return list with all tasks on local db
+     */
     public List<TaskItem> GetAllTaskList()
     {
         ParseUser user = ParseUser.getCurrentUser();
@@ -181,6 +199,10 @@ public class DAO implements IDataAcces
         }
     }
 
+    /**
+     * request from parse to get all tasks
+     * @param callback - parse result callback
+     */
     public void GetParseTasksList(FindCallback<ParseObject> callback)
     {
         ParseUser user = ParseUser.getCurrentUser();
@@ -191,6 +213,10 @@ public class DAO implements IDataAcces
     }
 
 
+    /**
+     * sync all parse tasks received and insert it to local db
+     * @param ParseTaskList
+     */
     public void SyncParseTaskList(List<TaskItem> ParseTaskList)
     {
         SQLiteDatabase database = null;
@@ -206,6 +232,15 @@ public class DAO implements IDataAcces
         }
     }
 
+    /**
+     * update task data  both on parse and local db
+     * @param callback - parse callback
+     * @param taskID
+     * @param Description
+     * @param teamMember
+     * @param column name in local db
+     * @param UpdatedValue
+     */
     public void  UpdateTask(FindCallback<ParseObject> callback , int taskID,String Description,String teamMember,String column,String UpdatedValue)
     {
         SQLiteDatabase database = null;
@@ -229,6 +264,13 @@ public class DAO implements IDataAcces
         }
     }
 
+    /**
+     *update task data  both on parse and local db
+     * @param callback
+     * @param task
+     * @param column in local db
+     * @param UpdatedValue
+     */
     public void UpdateTask( FindCallback<ParseObject> callback,TaskItem task,String column,int UpdatedValue)
     {
         SQLiteDatabase database = null;
@@ -252,6 +294,10 @@ public class DAO implements IDataAcces
 
     }
 
+    /**
+     * Update tasks table data
+     * @param newTask
+     */
     public void UpdateTaskTable(TaskItem newTask){
         SQLiteDatabase database = null;
         try {
@@ -281,6 +327,12 @@ public class DAO implements IDataAcces
         }
     }
 
+    /**
+     * Add task to local db and parse
+     * @param task
+     * @param callback - parse callback
+     * @return
+     */
     public TaskItem AddTask(final TaskItem task , final SaveCallback callback)
     {
         SQLiteDatabase database = null;
@@ -341,6 +393,11 @@ public class DAO implements IDataAcces
         TaskList.add(item);*/
     }
 
+    /**
+     * cursor To Task
+     * @param cursor
+     * @return
+     */
     private TaskItem cursorToTask(Cursor cursor) {
         TaskItem f = new TaskItem();
         f.setId(cursor.getInt(cursor.getColumnIndex(TaskDBContract.TaskEntry._ID)));
@@ -363,6 +420,11 @@ public class DAO implements IDataAcces
         return f;
     }
 
+    /**
+     * cursor to user
+     * @param cursor
+     * @return
+     */
     private User cursorTouser(Cursor cursor) {
         User f = new User();
         f.setId(cursor.getInt(cursor.getColumnIndex(MembersDBContract.MembersEntry._ID)));
@@ -375,6 +437,11 @@ public class DAO implements IDataAcces
         return f;
     }
 
+    /**
+     * remove task from parse and local db
+     * @param callback
+     * @param task
+     */
     @Override
     public void RemoveTask(FindCallback<ParseObject> callback,TaskItem task) {
         SQLiteDatabase database = null;
@@ -394,6 +461,11 @@ public class DAO implements IDataAcces
         }
     }
 
+    /**
+     * Delete user from parse and local db
+     * @param user
+     * @param callback
+     */
     public void DeleteUser(User user, final LogInCallback callback)
     {
         adminPassword = ParseUser.getCurrentUser().getString("Phone");
@@ -424,6 +496,13 @@ public class DAO implements IDataAcces
             }
         }
     }
+
+    /**
+     * Add user to local db and parse
+     * @param usr
+     * @param callback
+     * @return
+     */
     @Override
     public User AddUser(User usr,SignUpCallback callback) {
         SQLiteDatabase database = null;
@@ -467,6 +546,10 @@ public class DAO implements IDataAcces
 
     }
 
+    /**
+     * Add user to local db from parse result
+     * @param usr
+     */
     @Override
     public void AddUserFromParse(User usr) {
         SQLiteDatabase database = null;
@@ -527,6 +610,14 @@ public class DAO implements IDataAcces
     {
         return tName;
     }
+
+    /**
+     * Update specific user field
+     * @param fieldName
+     * @param numVal
+     * @param strVal
+     * @param userID
+     */
     public void UpdateUserField(String fieldName,int numVal,String strVal,int userID)
     {
         SQLiteDatabase database = null;

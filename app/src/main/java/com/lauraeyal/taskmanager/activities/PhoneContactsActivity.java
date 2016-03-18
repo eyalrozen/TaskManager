@@ -38,7 +38,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-
+//Class that loads all contacts from phone , initialize it to list view on custome design (multiple item selection)
 public class PhoneContactsActivity extends Activity {
 
     // ArrayList
@@ -104,6 +104,7 @@ public class PhoneContactsActivity extends Activity {
         finish();
     }
 
+    //Add users to team
     public void OnDoneBtnClick(final View v)
     {
         progressDialog.show();

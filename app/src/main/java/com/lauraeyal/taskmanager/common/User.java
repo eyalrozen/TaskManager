@@ -1,5 +1,8 @@
 package com.lauraeyal.taskmanager.common;
 
+/**
+ * user object holds several data fields
+ */
 public class User {
 	private int id;
 	private String userName;

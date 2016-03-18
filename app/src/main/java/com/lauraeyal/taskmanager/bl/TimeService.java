@@ -54,6 +54,9 @@ public class TimeService extends Service {
         SetTimerInterval();
     }
 
+    /**
+     * Set refresh timer interval
+     */
     public void SetTimerInterval()
     {
         sharedpreferences = getSharedPreferences(LoginActivity.MyPREFERENCES, Context.MODE_PRIVATE);

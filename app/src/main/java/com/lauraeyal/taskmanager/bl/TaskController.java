@@ -39,12 +39,19 @@ public class TaskController implements ITaskController {
     }
     private List<String> descriptionList;
 
-
+    /**
+     * get all tasks from parse
+     * @param callback - parse callback
+     */
     public void GetParseTaskList(FindCallback<ParseObject> callback)
     {
         dao.GetParseTasksList(callback);
     }
 
+    /**
+     * sync parse task list with local db
+     * @param ParseTaskList
+     */
     public void SyncParseTaskList(List<TaskItem> ParseTaskList){
         dao.SyncParseTaskList(ParseTaskList);
     }
@@ -58,6 +65,11 @@ public class TaskController implements ITaskController {
     {
         dao.SyncTeamName();
     }
+
+    /**
+     * get waiting task list from local DB
+     * @return
+     */
     public List<TaskItem> GetWaitingTaskList() {
         try{
             List<TaskItem> list = dao.GetWaitingTaskList();
@@ -84,6 +96,10 @@ public class TaskController implements ITaskController {
         }
     }
 
+    /**
+     * get all tasks from local db
+     * @return
+     */
     public List<TaskItem> GetAllTaskList()
     {
         try{
@@ -111,6 +127,10 @@ public class TaskController implements ITaskController {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public List<TaskItem> SortAllTasksByStatus(){
         try{
             List<TaskItem> list = dao.GetAllTaskList();
@@ -176,16 +196,37 @@ public class TaskController implements ITaskController {
         }
     }
 
+    /**
+     *
+     * @param callback - parse callback
+     * @param task
+     * @param column  name in DB
+     * @param UpdatedValue
+     */
     public void UpdateTask( FindCallback<ParseObject> callback ,TaskItem task,String column,int UpdatedValue)
     {
         dao.UpdateTask(callback,task,column,UpdatedValue);
     }
 
+    /**
+     *
+     * @param callback - parse callback
+     * @param taskID
+     * @param Description
+     * @param teamMember
+     * @param column name in DB
+     * @param UpdatedValue
+     */
     public void UpdateTask(FindCallback<ParseObject> callback , int taskID,String Description,String teamMember,String column,String UpdatedValue)
     {
         dao.UpdateTask(callback,taskID,Description,teamMember,column,UpdatedValue);
     }
 
+    /**
+     * Remove task - getting selected task
+     * @param callback from parse
+     * @param task
+     */
     @Override
     public void RemoveTask(FindCallback<ParseObject> callback, TaskItem task) {
         dao.RemoveTask(callback,task);

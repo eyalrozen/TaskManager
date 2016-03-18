@@ -13,6 +13,9 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+import com.lauraeyal.taskmanager.AnalyticsApplication;
 import com.lauraeyal.taskmanager.R;
 import com.lauraeyal.taskmanager.bl.*;
 import com.lauraeyal.taskmanager.common.*;
@@ -46,11 +49,14 @@ public class LoginActivity extends Activity {
 	SharedPreferences sharedpreferences;
 	public static boolean isFirstTime=false;
 	public static final String MyPREFERENCES = "MyPrefs" ;
+	private Tracker mTracker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+		AnalyticsApplication application = (AnalyticsApplication) getApplication();
+		mTracker = application.getDefaultTracker();
 		sharedpreferences = getSharedPreferences(LoginActivity.MyPREFERENCES, Context.MODE_PRIVATE);
 		try {
 			Parse.initialize(this);
@@ -58,6 +64,7 @@ public class LoginActivity extends Activity {
 		catch (Exception e) {
 			Log.d("parse", "Parse Already init");
 		}
+		//Reset badge number
 		ShortcutBadger.removeCount(getApplicationContext());
 		progressDialog = new ProgressDialog(LoginActivity.this);
 		progressDialog.setIndeterminate(true);
@@ -74,7 +81,8 @@ public class LoginActivity extends Activity {
         passwordEditText = (EditText) findViewById(R.id.editTextPassword);
 		phoneNumberEditText = (EditText) findViewById(R.id.editTextphoneNumber);
     }
-    
+
+	//Handle login flow - if all fields was field
     public void logInClicked(View v) throws ParseException {
     	//get the password, user name and phone number from the edit text.
     	if(userNameEditText!=null && passwordEditText!=null && phoneNumberEditText!=null)
@@ -168,9 +176,9 @@ public class LoginActivity extends Activity {
 			}
 		}
 	}
+	//Load tasks activity after login authenitaction success , set default refresh timer service to 30 minutes.
     public void startTasksActivity()
     {
-		;
 		int refreshTimer=sharedpreferences.getInt("autoRefresh", 0);
 		//Set default refresh timer to 30 Minutes
 		if(refreshTimer==0) {
@@ -181,8 +189,13 @@ public class LoginActivity extends Activity {
 		Intent i = new Intent(getApplicationContext(), TasksActivity.class);
 		startActivity(i);
 		finish();
-		//Explicit intent.
-
     }
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		mTracker.setScreenName("Login");
+		mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+	}
 
 }

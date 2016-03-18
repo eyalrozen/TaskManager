@@ -8,6 +8,10 @@ import java.util.Locale;
 /**
  * Created by Eyal on 11/7/2015.
  */
+
+/**
+ * task item holds several data fields
+ */
 public class TaskItem {
     private String _description;
     private String _category;

@@ -34,11 +34,19 @@ public class UsersController implements IUsersController
 		return false;
 	}
 
+	/**
+	 * get all team members list
+	 * @return
+	 */
 	public List<User> GetUsersList()
 	{
 		return dao.GetUserList();
 	}
 
+	/**
+	 * Update user table from parse
+	 * @param pUsers
+	 */
 	public void UpdateUsersTable(List<ParseUser> pUsers){
 		List<User> updatedUserList = new ArrayList<User>();
 		for(ParseUser pUser : pUsers){
@@ -55,10 +63,19 @@ public class UsersController implements IUsersController
 		invokeDataSourceChanged();
 	}
 
+	/**
+	 * sync users from parse and init to local db
+	 * @param callback
+	 */
 	public void SyncParseUsers(FindCallback<ParseUser> callback){
 		dao.SyncParseUsers(callback);
 	}
 
+	/**
+	 * add user to parse + local db
+	 * @param newUser
+	 * @param callback
+	 */
 	public void AddUser(User newUser , SignUpCallback callback)
 	{
 		User usr;
@@ -66,6 +83,13 @@ public class UsersController implements IUsersController
 		invokeDataSourceChanged();
 	}
 
+	/**
+	 * get specific user
+	 * @param userName
+	 * @param password
+	 * @param phoneNumber
+	 * @return
+	 */
 	public User GetUser(String userName,String password,String phoneNumber)
 	{
 		List<User> updatedList = dao.GetUserList();
